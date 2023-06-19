@@ -1,5 +1,5 @@
-import Constants from "../Constants";
-import GameEntity from "../GameEntity";
+import Constants from "./Constants";
+import GameEntity from "./GameEntity";
 export default class Enemy extends GameEntity {
   static #EnemyState = {
     SEARCH: "SEARCH",
@@ -27,7 +27,7 @@ export default class Enemy extends GameEntity {
     else if (this.currentState == Enemy.#EnemyState.ATTACK) this.#attackState();
   }
 
-  #followState() {
+  #searchState() {
     // search player
     // if found
     // if player in reach -> change to attack state (and do first attack??)

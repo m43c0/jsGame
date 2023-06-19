@@ -1,9 +1,9 @@
 "use strict";
-import Constants from "../Constants";
+import Constants from "./Constants";
 import GameMap from "./GameMap";
 import Player from "./Player";
 import Enemy from "./Enemy";
-import PlayerStats from "../PlayerStats";
+import PlayerStats from "./PlayerStats";
 
 export default class GameManager {
   static #instance;

@@ -1,4 +1,4 @@
-import Constants from "../Constants";
+import Constants from "./Constants";
 import GameManager from "./GameManager";
 import Player from "./Player";
 import Enemy from "./Enemy";

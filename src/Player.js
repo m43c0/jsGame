@@ -1,5 +1,5 @@
-import Constants from "../Constants";
-import GameEntity from "../GameEntity";
+import Constants from "./Constants";
+import GameEntity from "./GameEntity";
 
 // classe per gestire l'oggetto player nella mappa
 // ha un riferimento all'oggetto playerStat gestito dal GM in modod da non
