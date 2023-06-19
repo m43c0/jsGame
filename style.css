@@ -68,7 +68,7 @@ body {
 	box-shadow: inset 0px 0px 6px 2px purple;
 }
 
-player {
+player-avatar {
 	--player-move-speed: .1s;
 	width: var(--cell-size);
 	height: var(--cell-size);

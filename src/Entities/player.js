@@ -1,13 +1,17 @@
 import Constants from "../Constants";
+import GameEntity from "../GameEntity";
 
-export default class Player {
+// classe per gestire l'oggetto player nella mappa
+// ha un riferimento all'oggetto playerStat gestito dal GM in modod da non
+// dover sempre richiamare quest'ultimo durante i combattimenti
+export default class Player extends GameEntity {
   constructor() {
     "use strict";
-    this.currentLevel = 1;
-    this.isAttacking = false;
+    super();
+
+    // imposto la velocità di transazione del player (la velocità con la quale si muoverà tra le celle)
+    // all'80% del tempo di un turno, così alla fine del turno il player sarà sicuramente in una casella, e non a metà tra due
+    const turnTime = Constants.get("turnTime") * 0.8;
+    this.style.setProperty("--player-move-speed", turnTime + "ms");
   }
-
-  update() {}
-
-  turnUpdate() {}
 }

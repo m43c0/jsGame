@@ -13,9 +13,17 @@ export default class Constants {
     map_rows: 7,
     test: "_test_",
     turnTime: 200, // millis
+
+    startingPlayerLevel: 1,
     basePlayerHp: 100,
     basePlayerAtk: 15,
+    basePlayerExpToNextLevel: 10,
+
     baseEnemyHp: 10,
+    baseEnemyExpDrop: 20,
+    baseEnemyGoldDrop: 1,
+
+    mapStartingLevel: 1,
   };
 
   static get(constantName) {

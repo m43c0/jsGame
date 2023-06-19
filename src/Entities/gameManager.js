@@ -1,8 +1,9 @@
 "use strict";
 import Constants from "../Constants";
-import Map from "./GameMap";
+import GameMap from "./GameMap";
 import Player from "./Player";
 import Enemy from "./Enemy";
+import PlayerStats from "../PlayerStats";
 
 export default class GameManager {
   static #instance;
@@ -21,11 +22,12 @@ export default class GameManager {
       this.variable = Constants.get("test");
       this.turnTime = Constants.get("turnTime");
       this.map = null;
-      this.player = null;
+      this.playerStats = new PlayerStats();
       this.gameState = GameManager.#GameState.STOP;
 
-      // define enemy custom HTML element
+      // define player and enemy custom HTML element
       window.customElements.define("enemy-avatar", Enemy);
+      window.customElements.define("player-avatar", Player);
 
       this.startFrameTimer = performance.now();
       this.deltaTime = undefined; // millis
@@ -33,7 +35,7 @@ export default class GameManager {
       // start main update cycle
       this.#mainUpdate();
 
-      // FIX: questo metodo la prima volta sarà chiamato dal giocatore al click su un pulsante
+      // FIXME: questo metodo la prima volta sarà chiamato dal giocatore al click su un pulsante
       this.startGame();
     } else return GameManager.#instance;
   }
@@ -44,14 +46,14 @@ export default class GameManager {
   }
 
   startGame() {
-    this.#buildMap(1);
+    this.#buildMap(this.playerStats);
     this.gameState = GameManager.#GameState.PLAY;
   }
 
-  #buildMap(mapLevel) {
+  #buildMap(plStats) {
     this.map = null;
     // build map
-    this.map = new Map(mapLevel);
+    this.map = new GameMap(plStats);
   }
 
   #mainUpdate() {
@@ -85,7 +87,8 @@ export default class GameManager {
     // animate out
 
     // create new map
-    this.#buildMap(1);
+    this.playerStats.mapLevel++;
+    this.#buildMap(this.playerStats);
 
     // animate in
 

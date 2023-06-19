@@ -1,63 +1,41 @@
 import Constants from "../Constants";
-export default class Enemy extends HTMLElement {
+import GameEntity from "../GameEntity";
+export default class Enemy extends GameEntity {
   static #EnemyState = {
-    IDLE: "IDLE",
-    FOLLOW_PLAYER: "FOLLOW_PLAYER",
+    SEARCH: "SEARCH",
     ATTACK: "ATTACK",
-    DEAD: "DEAD",
   };
 
-  constructor(level, type, posX, posY) {
+  level;
+  constructor(lv, type) {
+    "use";
     super();
 
-    this.level = level;
+    // enemy stats
+    this.level = lv;
     this.type = type;
 
-    this.currentPosition = { x: posX, y: posY };
-
-    this.style.left = posX + "px";
-    this.style.top = posY + "px";
-
-    this.currentState = Enemy.#EnemyState.IDLE;
+    this.currentState = Enemy.#EnemyState.SEARCH;
 
     this.hp = this.level * Constants.get("baseEnemyHp");
-
-    this.addEventListener("click", () => this.#enemyClicked());
   }
 
   update() {}
 
   turnUpdate() {
-    //console.log("enemy turn update");
-    switch (this.currentState) {
-      case Enemy.#EnemyState.IDLE:
-        this.#idleState();
-        break;
-      case Enemy.#EnemyState.FOLLOW_PLAYER:
-        this.#followState();
-        break;
-      case Enemy.#EnemyState.ATTACK:
-        this.#attackState();
-        break;
-      case Enemy.#EnemyState.DEAD:
-        this.#deadState();
-        break;
-
-      default:
-        break;
-    }
+    if (this.currentState == Enemy.#EnemyState.SEARCH) this.#searchState();
+    else if (this.currentState == Enemy.#EnemyState.ATTACK) this.#attackState();
   }
 
-  #enemyClicked(e) {
-    console.log(this);
-  }
-
-  #idleState() {
-    // search for player
-  }
   #followState() {
-    // follow player
+    // search player
+    // if found
+    // if player in reach -> change to attack state (and do first attack??)
+    // if player out of reach -> set direction and move toward player
+    // if player not found -> move left and right
   }
-  #attackState() {}
-  #deadState() {}
+  #attackState() {
+    // if player in reach -> attack
+    // if player out of reach -> change to follow state
+  }
 }
