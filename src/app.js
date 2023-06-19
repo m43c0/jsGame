@@ -1,3 +1,3 @@
-import GameManager from "./Entities/GameManager";
+import GameManager from "q./GameManager";
 
 const gm = new GameManager();
