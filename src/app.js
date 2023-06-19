@@ -1,3 +1,3 @@
-import GameManager from "q./GameManager";
+import GameManager from "./GameManager";
 
 const gm = new GameManager();

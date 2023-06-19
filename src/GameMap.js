@@ -26,13 +26,31 @@ export default class GameMap {
     this.world_container.id = "world_container";
     this.sky = document.createElement("div");
     this.sky.id = "sky";
-    const border_top = document.createElement("div");
-    border_top.id = "map_border_top";
-    for (let h = 0; h < 2; h++)
-      for (let v = 0; v < this.cols; v++) {
-        let b = document.createElement("div");
-        border_top.appendChild(b);
-      }
+
+    const bg0 = document.createElement("div");
+    bg0.id = "bg0";
+    bg0.classList.add("background");
+    const bg1 = document.createElement("div");
+    bg1.id = "bg1";
+    bg1.classList.add("background");
+    const bg2 = document.createElement("div");
+    bg2.id = "bg2";
+    bg2.classList.add("background");
+    const bg3 = document.createElement("div");
+    bg3.id = "bg3";
+    bg3.classList.add("background");
+    this.sky.appendChild(bg0);
+    this.sky.appendChild(bg1);
+    this.sky.appendChild(bg2);
+    this.sky.appendChild(bg3);
+
+    // const border_top = document.createElement("div");
+    // border_top.id = "map_border_top";
+    // for (let h = 0; h < 2; h++)
+    //   for (let v = 0; v < this.cols; v++) {
+    //     let b = document.createElement("div");
+    //     border_top.appendChild(b);
+    //   }
 
     const border_bottom = document.createElement("div");
     border_bottom.id = "map_border_bottom";
@@ -72,6 +90,7 @@ export default class GameMap {
     this.player = new Player();
     this.map_container.appendChild(this.player);
     this.#setGameEntityPositionInMap(this.player, 1, 3); // starting cell x:1, y:3
+    this.#setParallaxShift(); // reset parallax (for successive maps)
 
     //enemies
     const totalEnemiesOnMap = Math.floor(Math.random() * 2) + 3;
@@ -121,12 +140,8 @@ export default class GameMap {
 
   // set the position (left and top pixels) and the coordinates of the given gameEntity
   #setGameEntityPositionInMap(gameEntity, xCoords, yCoords) {
-    console.log("ENT: " + JSON.stringify(gameEntity), xCoords, yCoords);
-
     const cellPosition = this.#getCellPositionFromCoords(xCoords, yCoords);
-    console.log("POS: ", cellPosition);
 
-    console.log("___");
     gameEntity.style.left = cellPosition.x + "px";
     gameEntity.style.top = cellPosition.y + "px";
     gameEntity.currentX = xCoords;
@@ -143,13 +158,22 @@ export default class GameMap {
       // si -> mi muovo in quella direzione
       this.#setGameEntityPositionInMap(this.player, nextCell.x, nextCell.y);
 
+      this.#setParallaxShift();
+
       this.#checkIfPlayerArrivedAtDestination();
     }
   }
 
+  #setParallaxShift() {
+    document.documentElement.style.setProperty(
+      "--parallax-shift",
+      this.player.currentX * -1 + "px"
+    );
+  }
+
   #checkIfPlayerArrivedAtDestination() {
     // se sono sull'ultima colonna -> prossima mappa
-    if (this.currentX >= this.cols - 1) {
+    if (this.player.currentX >= this.cols - 1) {
       GameManager.getInstance().nextMap();
       return;
     }

@@ -2,6 +2,8 @@
 	--world-width: 1000px;
 	--cell-size: 10px;
 	--map-columns: 10;
+
+	--parallax-shift: 0px;
 }
 
 * {
@@ -11,18 +13,72 @@
 body {
 	margin: 0px;
 	padding: 0px;
+	background-color: black;
+}
+
+#overlay {
+	background-color: black;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	height: 100%;
+	width: 100%;
+	z-index: 99;
+	opacity: 0;
+	transition: opacity 1s ease;
+	pointer-events: none;
+}
+
+#root {
+	height: 100vh;
+	height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 #world_container {
-	margin: 0 auto;
 	width: var(--world-width);
 }
 
 #sky {
-	background-color: aqua;
+	position: relative;
 	width: 100%;
 	height: 20vh;
 }
+
+#sky .background {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	background-repeat: repeat-x;
+	background-size: contain;
+	background-position-y: bottom;
+	transition: background-position-x .4s ease;
+}
+
+#bg0 {
+	background-image: url(/assets/backgrounds/bg_0.png);
+}
+
+#bg1 {
+	background-image: url(/assets/backgrounds/bg_1.png);
+	background-position-x: calc(var(--parallax-shift) * 1.5);
+}
+
+#bg2 {
+	background-image: url(/assets/backgrounds/bg_2.png);
+	background-position-x: calc(var(--parallax-shift) * 3);
+}
+
+#bg3 {
+	background-image: url(/assets/backgrounds/bg_3.png);
+	background-position-x: calc(var(--parallax-shift) * 15);
+}
+
 
 #map_border_top,
 #map_border_bottom {
@@ -44,7 +100,6 @@ body {
 }
 
 #map_container cell {
-	/* background: green; */
 
 	background-image: url(/assets/tileset/tileTest.png);
 
