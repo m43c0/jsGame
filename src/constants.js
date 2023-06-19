@@ -13,6 +13,9 @@ export default class Constants {
     map_rows: 7,
     test: "_test_",
     turnTime: 200, // millis
+    basePlayerHp: 100,
+    basePlayerAtk: 15,
+    baseEnemyHp: 10,
   };
 
   static get(constantName) {

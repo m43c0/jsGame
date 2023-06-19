@@ -1,35 +1,40 @@
 "use strict";
 import Constants from "../Constants";
-import Map from "./map";
-import Player from "./player";
-import Enemy from "./enemy";
+import Map from "./GameMap";
+import Player from "./Player";
+import Enemy from "./Enemy";
 
 export default class GameManager {
   static #instance;
   static isDebug = false;
 
   // PLAY: normal play with turns timing
-  // IDLE: menu, shopts, etc.. main update runs but no turns
+  // PAUSE: menu, shopts, etc.. main update runs but no turns
   // STOP: pause or game over. no main update or turns
-  static #GameState = { PLAY, IDLE, STOP };
+  static #GameState = { PLAY: "PLAY", PAUSE: "PAUSE", STOP: "STOP" };
 
   constructor() {
     // singleton
     if (!GameManager.#instance) {
       GameManager.#instance = this;
 
-      this.HTMLroot = document.getElementById("root");
       this.variable = Constants.get("test");
       this.turnTime = Constants.get("turnTime");
-      this.map = new Map();
-      this.currentEnemies = [];
-      this.player = new Player();
-      this.gameState = GameManager.#GameState.PLAY;
+      this.map = null;
+      this.player = null;
+      this.gameState = GameManager.#GameState.STOP;
+
+      // define enemy custom HTML element
+      window.customElements.define("enemy-avatar", Enemy);
 
       this.startFrameTimer = performance.now();
       this.deltaTime = undefined; // millis
 
-      this.init();
+      // start main update cycle
+      this.#mainUpdate();
+
+      // FIX: questo metodo la prima volta sarà chiamato dal giocatore al click su un pulsante
+      this.startGame();
     } else return GameManager.#instance;
   }
 
@@ -38,17 +43,15 @@ export default class GameManager {
     return new GameManager();
   }
 
-  init() {
+  startGame() {
+    this.#buildMap(1);
+    this.gameState = GameManager.#GameState.PLAY;
+  }
+
+  #buildMap(mapLevel) {
+    this.map = null;
     // build map
-    this.map.createMap();
-
-    this.map.map_container.appendChild(this.player.playerAvatar);
-    this.player.setPosition(1, 3); // starting cell x:1, y:3
-
-    // create enemies with map info
-
-    // start main update cycle
-    this.#mainUpdate();
+    this.map = new Map(mapLevel);
   }
 
   #mainUpdate() {
@@ -56,6 +59,7 @@ export default class GameManager {
       this.deltaTime = performance.now() - this.startFrameTimer;
       this.startFrameTimer = performance.now();
       GameManager.console_log("delta time: " + this.deltaTime);
+      this.map.update();
     }
 
     if (this.gameState == GameManager.#GameState.PLAY) {
@@ -68,28 +72,25 @@ export default class GameManager {
   #turnUpdate() {
     GameManager.console_log("TURN");
     this.turnTime = Constants.get("turnTime");
-
-    this.player.turnUpdate();
-    this.currentEnemies.forEach((e) => e.turnUpdate());
+    this.map.turnUpdate();
   }
 
   static console_log(message) {
     if (GameManager.isDebug) console.log(message);
   }
 
-  setPlayerTarget(cell) {
-    const targetX = parseInt(cell.getAttribute("pos-x"));
-    const targetY = parseInt(cell.getAttribute("pos-y"));
-    console.log("X: ", targetX, "Y: ", targetY);
+  nextMap() {
+    this.gameState = GameManager.#GameState.STOP;
 
-    this.player.setTarget(targetX, targetY);
+    // animate out
+
+    // create new map
+    this.#buildMap(1);
+
+    // animate in
+
+    this.gameState = GameManager.#GameState.PLAY;
   }
-
-  canMoveToCell(x, y) {
-    return true;
-  }
-
-  nextMap() {}
 
   async test() {
     await delay(1);

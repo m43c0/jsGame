@@ -1,7 +1,3 @@
-import Constants from "./Constants";
-import GameManager from "./Entities/gameManager";
-import Map from "./Entities/map";
-import Player from "./Entities/player";
-import Enemy from "./Entities/enemy";
+import GameManager from "./Entities/GameManager";
 
 const gm = new GameManager();

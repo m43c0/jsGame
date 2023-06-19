@@ -44,7 +44,11 @@ body {
 }
 
 #map_container cell {
-	background: green;
+	/* background: green; */
+
+	background-image: url(/assets/tileset/tileTest.png);
+
+
 	border-right: 1px solid #474747;
 	border-bottom: 1px solid #474747;
 	width: var(--cell-size);
@@ -60,8 +64,8 @@ body {
 	box-shadow: inset 0px 0px 6px 2px blue;
 }
 
-#map_container cell.current_enemy_target {
-	box-shadow: inset 0px 0px 6px 2px red;
+#map_container cell.has_enemy.current_target {
+	box-shadow: inset 0px 0px 6px 2px purple;
 }
 
 player {
@@ -73,4 +77,15 @@ player {
 	z-index: 10;
 	background: yellow;
 	transition: top var(--player-move-speed) ease, left var(--player-move-speed) ease;
+}
+
+enemy-avatar {
+	--enemy-move-speed: .1s;
+	width: var(--cell-size);
+	height: var(--cell-size);
+	display: block;
+	position: absolute;
+	z-index: 9;
+	background: red;
+	transition: top var(--enemy-move-speed) ease, left var(--enemy-move-speed) ease;
 }
