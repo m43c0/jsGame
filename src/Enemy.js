@@ -17,12 +17,19 @@ export default class Enemy extends GameEntity {
 
     this.currentState = Enemy.#EnemyState.SEARCH;
 
-    this.hp = this.level * Constants.get("baseEnemyHp");
+    this.maxHp = this.level * Constants.get("baseEnemyHp");
+    this.hp = this.maxHp;
+
+    this.healthBar = document.createElement("div");
+    this.healthBar.classList.add("health_bar");
+    this.appendChild(this.healthBar);
   }
 
   update() {}
 
   turnUpdate() {
+    if (this.hp <= 0) return;
+
     if (this.currentState == Enemy.#EnemyState.SEARCH) this.#searchState();
     else if (this.currentState == Enemy.#EnemyState.ATTACK) this.#attackState();
   }
@@ -37,5 +44,17 @@ export default class Enemy extends GameEntity {
   #attackState() {
     // if player in reach -> attack
     // if player out of reach -> change to follow state
+  }
+
+  getHit(atkPower) {
+    this.hp = Math.max(0, this.hp - atkPower);
+    this.healthBar.style.maxWidth = (this.hp * 100) / this.maxHp + "%";
+    if (this.hp <= 0) this.die();
+  }
+
+  die() {
+    this.healthBar.remove();
+    this.cell.currentEntity = null;
+    this.classList.add("death");
   }
 }

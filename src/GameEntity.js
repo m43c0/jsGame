@@ -3,7 +3,6 @@ import { Direction } from "./Direction";
 export default class GameEntity extends HTMLElement {
   #currentDirection = Direction.Down;
   #currentTargetCell = null;
-  isAttacking = false;
   cell = null;
   constructor() {
     super();

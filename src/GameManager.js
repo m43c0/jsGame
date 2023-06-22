@@ -115,13 +115,4 @@ export default class GameManager {
 
     this.gameState = GameManager.#GameState.PLAY;
   }
-
-  async test() {
-    await delay(1);
-    // do something
-  }
-}
-
-function delay(ms) {
-  new Promise((res) => setTimeout(res, ms));
 }

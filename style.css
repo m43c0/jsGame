@@ -115,7 +115,6 @@ body {
 
 #bg3 {
 	background-image: url(/assets/backgrounds/bg_3.png);
-	background-position-x: calc(var(--parallax-shift) * 6);
 }
 
 #daynight_overlay {
@@ -237,8 +236,22 @@ enemy-avatar {
 	background-image: url(/assets/characters/eLv1/idle.png);
 	background-size: cover;
 	transition: top var(--enemy-move-speed) linear, left var(--enemy-move-speed) linear;
+	pointer-events: none;
+
 }
 
+enemy-avatar .health_bar {
+	position: absolute;
+	bottom: 0px;
+	width: var(--cell-size);
+	height: calc(var(--cell-size) / 10);
+	background: red;
+	max-width: 100%;
+}
+
+enemy-avatar.death {
+	background-image: url(/assets/characters/eLv1/death.png);
+}
 
 
 player-avatar,

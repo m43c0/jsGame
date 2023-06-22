@@ -10,8 +10,8 @@ export default class Player extends GameEntity {
     super();
 
     // imposto la velocità di transazione del player (la velocità con la quale si muoverà tra le celle)
-    // all'80% del tempo di un turno, così alla fine del turno il player sarà sicuramente in una casella, e non a metà tra due
-    const turnTime = Constants.get("turnTime") * 0.8;
+    // all'95% del tempo di un turno, così alla fine del turno il player sarà sicuramente in una casella, e non a metà tra due
+    const turnTime = Constants.get("turnTime") * 0.95;
     this.style.setProperty("--player-move-speed", turnTime + "ms");
   }
 }

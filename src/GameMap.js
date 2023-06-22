@@ -114,11 +114,13 @@ export default class GameMap {
     }
 
     let totalEnemiesOnMap = Math.floor((mapLv + 2) / 2);
+    totalEnemiesOnMap = 2;
     const enemyLevel = Math.floor(mapLv / 3) + 1;
 
     while (totalEnemiesOnMap > 0) {
       const enemyPositionX = GameMap.#randomIntFromInterval(5, this.cols - 2);
       const enemyPositionY = GameMap.#randomIntFromInterval(1, this.rows - 2);
+
       const cellToPlaceEnemy = this.#getCellFromCoords(
         enemyPositionX,
         enemyPositionY
@@ -130,8 +132,6 @@ export default class GameMap {
       this.enemies.push(enemy);
       this.map_container.appendChild(enemy);
       this.#setGameEntityPositionInMap(enemy, cellToPlaceEnemy);
-      enemy.addEventListener("click", (e) => this.#enemyClicked(e.target));
-
       totalEnemiesOnMap--;
     }
   }
@@ -236,19 +236,22 @@ export default class GameMap {
   }
 
   #setPlayerCurrentTarget(cell) {
-    // set player current target
-    console.log("X: ", cell.x, "Y: ", cell.y);
-
     // fermo il Player se per caso si stava già muovendo
     this.#stopPlayerMovements();
 
+    if (cell.currentEntity instanceof Enemy && cell.currentEntity.hp > 0)
+      if (
+        (Math.abs(this.player.cell.x - cell.x) == 1 &&
+          Math.abs(this.player.cell.y - cell.y) == 0) ||
+        (Math.abs(this.player.cell.y - cell.y) == 1 &&
+          Math.abs(this.player.cell.x - cell.x) == 0)
+      ) {
+        this.#attack(this.player, cell.currentEntity);
+        return;
+      }
+
     cell.classList.add("current_target");
-
     this.player.setCurrentTargetCell(cell);
-  }
-
-  #enemyClicked(enemy) {
-    console.log(JSON.stringify(enemy));
   }
 
   #stopPlayerMovements() {
@@ -257,10 +260,22 @@ export default class GameMap {
     this.player.resetCurrentTargetCell();
   }
 
-  #attack(target) {}
+  async #attack(attackingEntity, target) {
+    if (attackingEntity.classList.contains("attack")) {
+      console.log("noono");
+      return;
+    }
+
+    attackingEntity.classList.add("attack");
+    target.getHit(this.playerStatsRef.atk);
+
+    await this.aspetta(GameManager.getInstance().turnTime * 2);
+
+    attackingEntity.classList.remove("attack");
+  }
 
   #isCellFree(cell) {
-    return cell.isWalkable && cell.currentEntity == null;
+    return cell.currentEntity == null;
   }
 
   #getCellFromCoords(coordX, coordY) {
@@ -309,5 +324,9 @@ export default class GameMap {
       "#" +
       (((1 << 24) + (rr << 16) + (rg << 8) + rb) | 0).toString(16).slice(1)
     );
+  }
+
+  aspetta(ms) {
+    return new Promise((res) => setTimeout(res, ms));
   }
 }

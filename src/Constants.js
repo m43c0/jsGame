@@ -12,14 +12,14 @@ export default class Constants {
     map_columns: 30,
     map_rows: 7,
     test: "_test_",
-    turnTime: 250, // millis
+    turnTime: 300, // millis
 
     playerStartPositionX: 1,
     playerStartPositionY: 3,
 
     startingPlayerLevel: 1,
     basePlayerHp: 100,
-    basePlayerAtk: 15,
+    basePlayerAtk: 5,
     basePlayerExpToNextLevel: 10,
 
     baseEnemyHp: 10,
