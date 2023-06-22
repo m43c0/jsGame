@@ -1,51 +1,51 @@
 import { Direction } from "./Direction";
 
 export default class GameEntity extends HTMLElement {
-  // class used as base class and extended to create custom HTMLElements to display (append) on the map
-  // currentX and currentY properties are added to parent class HTMLElement, used as coordinates of the entity on the map
-
-  currentX = 0;
-  currentY = 0;
   #currentDirection = Direction.Down;
-  #currentTarget = null;
+  #currentTargetCell = null;
   isAttacking = false;
-
+  cell = null;
   constructor() {
     super();
   }
 
   setDirection() {
-    if (this.#currentTarget.y < this.currentY)
+    if (this.#currentTargetCell.y < this.cell.y)
       this.#currentDirection = Direction.Up;
-    else if (this.#currentTarget.x > this.currentX)
+    else if (this.#currentTargetCell.x > this.cell.x) {
       this.#currentDirection = Direction.Right;
-    else if (this.#currentTarget.y > this.currentY)
+      this.classList.remove("facing_left");
+    } else if (this.#currentTargetCell.y > this.cell.y)
       this.#currentDirection = Direction.Down;
-    else if (this.#currentTarget.x < this.currentX)
+    else if (this.#currentTargetCell.x < this.cell.x) {
       this.#currentDirection = Direction.Left;
+      this.classList.add("facing_left");
+    }
   }
 
   getNextCellCoordsInCurrentDirection() {
     return {
-      x: this.currentX + this.#currentDirection.x,
-      y: this.currentY + this.#currentDirection.y,
+      x: this.cell.x + this.#currentDirection.x,
+      y: this.cell.y + this.#currentDirection.y,
     };
   }
 
   isAtTargetCoords() {
     return (
-      this.currentX == this.#currentTarget.x &&
-      this.currentY == this.#currentTarget.y
+      this.cell.x == this.#currentTargetCell.x &&
+      this.cell.y == this.#currentTargetCell.y
     );
   }
 
-  setCurrentTarget(xCoords, yCoords) {
-    this.#currentTarget = { x: xCoords, y: yCoords };
+  setCurrentTargetCell(targetCell) {
+    this.#currentTargetCell = targetCell;
+    this.classList.add("walk");
   }
-  resetCurrentTarget() {
-    this.#currentTarget = null;
+  resetCurrentTargetCell() {
+    this.#currentTargetCell = null;
+    this.classList.remove("walk");
   }
   hasTarget() {
-    return this.#currentTarget != null;
+    return this.#currentTargetCell != null;
   }
 }

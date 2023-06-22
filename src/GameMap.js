@@ -1,9 +1,11 @@
 import Constants from "./Constants";
 import GameManager from "./GameManager";
+import MapCell from "./MapCell";
 import Player from "./Player";
 import Enemy from "./Enemy";
 
 export default class GameMap {
+  #cells = [];
   constructor(playerStats) {
     "use strict";
     this.cols = Constants.get("map_columns");
@@ -14,6 +16,8 @@ export default class GameMap {
     this.map_container = null;
     this.enemies = [];
     this.locations = [];
+
+    this.timeOfDay = 0;
 
     this.playerStatsRef = playerStats;
 
@@ -30,6 +34,10 @@ export default class GameMap {
     const bg0 = document.createElement("div");
     bg0.id = "bg0";
     bg0.classList.add("background");
+    const starz = document.createElement("div");
+    starz.id = "bg_stars";
+    starz.classList.add("background");
+
     const bg1 = document.createElement("div");
     bg1.id = "bg1";
     bg1.classList.add("background");
@@ -40,45 +48,42 @@ export default class GameMap {
     bg3.id = "bg3";
     bg3.classList.add("background");
     this.sky.appendChild(bg0);
+    this.sky.appendChild(starz);
     this.sky.appendChild(bg1);
     this.sky.appendChild(bg2);
     this.sky.appendChild(bg3);
 
-    // const border_top = document.createElement("div");
-    // border_top.id = "map_border_top";
-    // for (let h = 0; h < 2; h++)
-    //   for (let v = 0; v < this.cols; v++) {
-    //     let b = document.createElement("div");
-    //     border_top.appendChild(b);
-    //   }
-
     const border_bottom = document.createElement("div");
     border_bottom.id = "map_border_bottom";
-    for (let h = 0; h < this.cols; h++) {
-      let b = document.createElement("div");
-      border_bottom.appendChild(b);
-    }
 
     this.map_container = document.createElement("div");
     this.map_container.id = "map_container";
     document.documentElement.style.setProperty("--map-columns", this.cols);
 
     this.world_container.appendChild(this.sky);
-    this.world_container.appendChild(border_top);
     this.world_container.appendChild(this.map_container);
     this.world_container.appendChild(border_bottom);
+
+    const dayNightOverlay = document.createElement("div");
+    dayNightOverlay.id = "daynight_overlay";
+    this.world_container.appendChild(dayNightOverlay);
 
     rootElement.appendChild(this.world_container);
 
     for (let y = 0; y < this.rows; y++)
       for (let x = 0; x < this.cols; x++) {
-        let s = document.createElement("cell");
-        s.addEventListener("click", (e) => {
-          this.#setPlayerCurrentTarget(e.target);
+        const ranomType = Math.random();
+        let cellType = MapCell.CellType.GRASS;
+        if (ranomType > 0.85) cellType = MapCell.CellType.TREE;
+        if (ranomType > 0.95) cellType = MapCell.CellType.ROCK;
+
+        const c = new MapCell(x, y, cellType);
+
+        c.addEventListener("click", () => {
+          this.#setPlayerCurrentTarget(c);
         });
-        s.setAttribute("pos-x", x);
-        s.setAttribute("pos-y", y);
-        this.map_container.appendChild(s);
+        this.map_container.appendChild(c);
+        this.#cells.push(c);
       }
 
     window.addEventListener("resize", (event) => {
@@ -89,24 +94,45 @@ export default class GameMap {
     // create player
     this.player = new Player();
     this.map_container.appendChild(this.player);
-    this.#setGameEntityPositionInMap(this.player, 1, 3); // starting cell x:1, y:3
+
+    this.#setGameEntityPositionInMap(
+      this.player,
+      this.#getCellFromCoords(
+        Constants.get("playerStartPositionX"),
+        Constants.get("playerStartPositionY")
+      )
+    );
     this.#setParallaxShift(); // reset parallax (for successive maps)
 
-    //enemies
-    const totalEnemiesOnMap = Math.floor(Math.random() * 2) + 3;
-    for (let i = 0; i < totalEnemiesOnMap; i++) {
-      // FIXME:
-      const eCoords = {
-        x: Math.round(Math.random() * this.cols - 1),
-        y: Math.round(Math.random() * this.rows - 1),
-      };
+    // enemies
+    const mapLv = this.playerStatsRef.mapLevel;
+    const isCity = mapLv % 3 === 0 || mapLv % 7 === 0 || mapLv % 13 === 0;
+    if (isCity) {
+      // TODO: place city
 
-      const enemy = new Enemy(this.playerStatsRef.mapLevel, "slime");
+      return;
+    }
 
+    let totalEnemiesOnMap = Math.floor((mapLv + 2) / 2);
+    const enemyLevel = Math.floor(mapLv / 3) + 1;
+
+    while (totalEnemiesOnMap > 0) {
+      const enemyPositionX = GameMap.#randomIntFromInterval(5, this.cols - 2);
+      const enemyPositionY = GameMap.#randomIntFromInterval(1, this.rows - 2);
+      const cellToPlaceEnemy = this.#getCellFromCoords(
+        enemyPositionX,
+        enemyPositionY
+      );
+
+      if (!this.#isCellFree(cellToPlaceEnemy)) continue;
+
+      const enemy = new Enemy(this.playerStatsRef.mapLevel, "slime"); // TODO: enemy type
       this.enemies.push(enemy);
       this.map_container.appendChild(enemy);
-      this.#setGameEntityPositionInMap(enemy, eCoords.x, eCoords.y);
+      this.#setGameEntityPositionInMap(enemy, cellToPlaceEnemy);
       enemy.addEventListener("click", (e) => this.#enemyClicked(e.target));
+
+      totalEnemiesOnMap--;
     }
   }
 
@@ -126,7 +152,9 @@ export default class GameMap {
     );
   }
 
-  update() {}
+  update() {
+    // this.#dayNightCycle();
+  }
 
   turnUpdate() {
     if (this.player.hasTarget()) this.#movePlayerAvatar();
@@ -134,88 +162,152 @@ export default class GameMap {
     this.enemies.forEach((e) => e.turnUpdate());
   }
 
-  #getCellPositionFromCoords(xCoordinate, yCoordinate) {
-    return { x: xCoordinate * this.cell_size, y: yCoordinate * this.cell_size };
+  #dayNightCycle() {
+    // timeOfDay:
+    // 0: 6AM
+    // 100: 6PM
+    // 200: 6AM
+    this.timeOfDay += 0.1;
+    if (this.timeOfDay >= 200) this.timeOfDay = 0;
+    // colori. da 0 a 100 giorno pieno. da 100 a 150 passa da giorno a notte e da 150 a 200 passa da notte a giorno
+    if (this.timeOfDay >= 100) {
+      let amount = this.timeOfDay - 100;
+      amount = amount <= 50 ? amount / 50 : amount * -0.02 + 2;
+      const dayNightColor = GameMap.#lerpColor("#aee7f8", "#34376f", amount);
+      document.documentElement.style.setProperty(
+        "--daynight-color",
+        dayNightColor
+      );
+      document.documentElement.style.setProperty(
+        "--night-intensity",
+        Math.min(amount, 0.5)
+      );
+    }
   }
 
   // set the position (left and top pixels) and the coordinates of the given gameEntity
-  #setGameEntityPositionInMap(gameEntity, xCoords, yCoords) {
-    const cellPosition = this.#getCellPositionFromCoords(xCoords, yCoords);
-
-    gameEntity.style.left = cellPosition.x + "px";
-    gameEntity.style.top = cellPosition.y + "px";
-    gameEntity.currentX = xCoords;
-    gameEntity.currentY = yCoords;
+  #setGameEntityPositionInMap(gameEntity, destinationCell) {
+    if (gameEntity.cell != null) gameEntity.cell.currentEntity = null;
+    gameEntity.style.left = destinationCell.x * this.cell_size + "px";
+    gameEntity.style.top = destinationCell.y * this.cell_size + "px";
+    destinationCell.currentEntity = gameEntity;
+    gameEntity.cell = destinationCell;
   }
 
   #movePlayerAvatar() {
     // imposto direzione
     this.player.setDirection();
-    const nextCell = this.player.getNextCellCoordsInCurrentDirection();
+    const nextCellCoords = this.player.getNextCellCoordsInCurrentDirection();
+    const nextCell = this.#getCellFromCoords(
+      nextCellCoords.x,
+      nextCellCoords.y
+    );
 
     // check se mi posso muovere in quella direzione
-    if (this.#canPlayerMoveToCell(nextCell.x, nextCell.y)) {
+    if (this.#isCellFree(nextCell)) {
       // si -> mi muovo in quella direzione
-      this.#setGameEntityPositionInMap(this.player, nextCell.x, nextCell.y);
-
+      this.#setGameEntityPositionInMap(this.player, nextCell);
       this.#setParallaxShift();
-
       this.#checkIfPlayerArrivedAtDestination();
+    } else {
+      // no -> mi fermo
+      this.#stopPlayerMovements();
     }
   }
 
   #setParallaxShift() {
     document.documentElement.style.setProperty(
       "--parallax-shift",
-      this.player.currentX * -1 + "px"
+      this.player.cell.x * -1 + "px"
     );
   }
 
   #checkIfPlayerArrivedAtDestination() {
     // se sono sull'ultima colonna -> prossima mappa
-    if (this.player.currentX >= this.cols - 1) {
+    if (this.player.cell.x >= this.cols - 1) {
       GameManager.getInstance().nextMap();
       return;
     }
 
     if (this.player.isAtTargetCoords()) {
       // arrivato a destinazione
-      this.#resetPlayerTarget();
+      this.#stopPlayerMovements();
     }
   }
 
-  #setPlayerCurrentTarget(cellNode) {
+  #setPlayerCurrentTarget(cell) {
     // set player current target
-    const targetX = parseInt(cellNode.getAttribute("pos-x"));
-    const targetY = parseInt(cellNode.getAttribute("pos-y"));
-    console.log("X: ", targetX, "Y: ", targetY);
+    console.log("X: ", cell.x, "Y: ", cell.y);
 
-    // remove class from current target cell
-    this.#resetPlayerTarget();
+    // fermo il Player se per caso si stava già muovendo
+    this.#stopPlayerMovements();
 
-    cellNode.classList.add("current_target");
+    cell.classList.add("current_target");
 
-    this.player.setCurrentTarget(targetX, targetY);
+    this.player.setCurrentTargetCell(cell);
   }
 
   #enemyClicked(enemy) {
     console.log(JSON.stringify(enemy));
   }
 
-  #resetPlayerTarget() {
-    const currentTargetCell = document.querySelector("cell.current_target");
+  #stopPlayerMovements() {
+    const currentTargetCell = document.querySelector("map-cell.current_target");
     if (currentTargetCell) currentTargetCell.classList.remove("current_target");
-    this.player.resetCurrentTarget();
+    this.player.resetCurrentTargetCell();
   }
 
   #attack(target) {}
 
-  #canPlayerMoveToCell(x, y) {
-    // TODO:
-    return true;
+  #isCellFree(cell) {
+    return cell.isWalkable && cell.currentEntity == null;
   }
-  #canEnemyMoveToCell(x, y) {
-    // TODO:
-    return true;
+
+  #getCellFromCoords(coordX, coordY) {
+    return this.#cells.filter(
+      (cell) => cell.x === coordX && cell.y == coordY
+    )[0];
+  }
+
+  /**
+   *
+   * UTILS
+   *
+   */
+
+  static #randomIntFromInterval(min, max) {
+    // min and max included
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  /**
+   * https://gist.github.com/rosszurowski/67f04465c424a9bc0dae
+   *
+   * A linear interpolator for hexadecimal colors
+   * @param {String} a
+   * @param {String} b
+   * @param {Number} amount
+   * @example
+   * // returns #7F7F7F
+   * lerpColor('#000000', '#ffffff', 0.5)
+   * @returns {String}
+   */
+  static #lerpColor(a, b, amount) {
+    var ah = +a.replace("#", "0x"),
+      ar = ah >> 16,
+      ag = (ah >> 8) & 0xff,
+      ab = ah & 0xff,
+      bh = +b.replace("#", "0x"),
+      br = bh >> 16,
+      bg = (bh >> 8) & 0xff,
+      bb = bh & 0xff,
+      rr = ar + amount * (br - ar),
+      rg = ag + amount * (bg - ag),
+      rb = ab + amount * (bb - ab);
+
+    return (
+      "#" +
+      (((1 << 24) + (rr << 16) + (rg << 8) + rb) | 0).toString(16).slice(1)
+    );
   }
 }

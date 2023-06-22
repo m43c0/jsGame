@@ -8,7 +8,7 @@ export default class Enemy extends GameEntity {
 
   level;
   constructor(lv, type) {
-    "use";
+    "use strict";
     super();
 
     // enemy stats

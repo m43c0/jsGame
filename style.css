@@ -1,9 +1,24 @@
+@font-face {
+	font-family: 'PressStart';
+	src: url(assets/fonts/PressStart2P-Regular.woff) format('woff');
+}
+
 :root {
 	--world-width: 1000px;
 	--cell-size: 10px;
 	--map-columns: 10;
 
 	--parallax-shift: 0px;
+
+
+	--daynight-color: #aee7f8;
+	--night-intensity: 0;
+}
+
+html {
+	font-family: 'PressStart';
+	font-size: 16px;
+	line-height: 1.1;
 }
 
 * {
@@ -18,15 +33,32 @@ body {
 
 #overlay {
 	background-color: black;
+	color: white;
 	position: fixed;
 	top: 0px;
 	left: 0px;
 	height: 100%;
 	width: 100%;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
 	z-index: 99;
-	opacity: 0;
+	opacity: 1;
 	transition: opacity 1s ease;
+}
+
+#overlay.isPlaying {
+	opacity: 0;
 	pointer-events: none;
+}
+
+
+#overlay .play_button {
+	font-size: 32px;
+	cursor: pointer;
 }
 
 #root {
@@ -40,6 +72,8 @@ body {
 
 #world_container {
 	width: var(--world-width);
+	position: relative;
+	cursor: url('assets/ui/cursor.png'), auto;
 }
 
 #sky {
@@ -61,7 +95,12 @@ body {
 }
 
 #bg0 {
-	background-image: url(/assets/backgrounds/bg_0.png);
+	background: linear-gradient(0deg, #ffffff 0%, var(--daynight-color) 100%);
+}
+
+#bg_stars {
+	background-image: url(/assets/backgrounds/bg_stars.png);
+	opacity: var(--night-intensity);
 }
 
 #bg1 {
@@ -76,22 +115,31 @@ body {
 
 #bg3 {
 	background-image: url(/assets/backgrounds/bg_3.png);
-	background-position-x: calc(var(--parallax-shift) * 15);
+	background-position-x: calc(var(--parallax-shift) * 6);
+}
+
+#daynight_overlay {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	background-color: #1c0f38;
+	opacity: var(--night-intensity);
+	pointer-events: none;
+	z-index: 1;
 }
 
 
-#map_border_top,
 #map_border_bottom {
-	display: flex;
-	flex-wrap: wrap;
+	width: 100%;
+	height: calc(var(--cell-size) * 2);
+	background-image: url(/assets/backgrounds/sea.png);
+	background-repeat: repeat-x;
+	background-size: contain;
+	background-position-y: bottom;
 }
 
-#map_border_top div,
-#map_border_bottom div {
-	background: brown;
-	width: var(--cell-size);
-	height: var(--cell-size);
-}
 
 #map_container {
 	display: grid;
@@ -99,29 +147,61 @@ body {
 	position: relative;
 }
 
-#map_container cell {
-
-	background-image: url(/assets/tileset/tileTest.png);
-
-
-	border-right: 1px solid #474747;
-	border-bottom: 1px solid #474747;
+map-cell {
+	background-size: cover;
 	width: var(--cell-size);
 	height: var(--cell-size);
-	transition: background-color .25s;
+	transition: box-shadow .25s ease;
 }
 
-#map_container cell:hover {
+map-cell:hover {
 	box-shadow: inset 0px 0px 6px 2px darkgoldenrod;
 }
 
-#map_container cell.current_target {
+map-cell.current_target {
 	box-shadow: inset 0px 0px 6px 2px blue;
 }
 
-#map_container cell.has_enemy.current_target {
+map-cell.has_enemy.current_target {
 	box-shadow: inset 0px 0px 6px 2px purple;
 }
+
+map-cell.grass_1 {
+	background-image: url(/assets/tiles/grass_1.png)
+}
+
+map-cell.grass_2 {
+	background-image: url(/assets/tiles/grass_3.png)
+}
+
+map-cell.grass_3 {
+	background-image: url(/assets/tiles/grass_3.png)
+}
+
+map-cell.tree_1 {
+	background-image: url(/assets/tiles/tree_1.png)
+}
+
+map-cell.tree_2 {
+	background-image: url(/assets/tiles/tree_2.png)
+}
+
+map-cell.tree_3 {
+	background-image: url(/assets/tiles/tree_3.png)
+}
+
+map-cell.rock_1 {
+	background-image: url(/assets/tiles/rock_1.png)
+}
+
+map-cell.rock_2 {
+	background-image: url(/assets/tiles/rock_2.png)
+}
+
+map-cell.rock_3 {
+	background-image: url(/assets/tiles/rock_3.png)
+}
+
 
 player-avatar {
 	--player-move-speed: .1s;
@@ -130,8 +210,21 @@ player-avatar {
 	display: block;
 	position: absolute;
 	z-index: 10;
-	background: yellow;
-	transition: top var(--player-move-speed) ease, left var(--player-move-speed) ease;
+	background-image: url(/assets/characters/player/idle.png);
+	background-size: cover;
+	transition: top var(--player-move-speed) linear, left var(--player-move-speed) linear;
+}
+
+player-avatar.walk {
+	background-image: url(/assets/characters/player/walk.png);
+}
+
+player-avatar.attack {
+	background-image: url(/assets/characters/player/attack.png);
+}
+
+player-avatar.death {
+	background-image: url(/assets/characters/player/death.png);
 }
 
 enemy-avatar {
@@ -141,6 +234,28 @@ enemy-avatar {
 	display: block;
 	position: absolute;
 	z-index: 9;
-	background: red;
-	transition: top var(--enemy-move-speed) ease, left var(--enemy-move-speed) ease;
+	background-image: url(/assets/characters/eLv1/idle.png);
+	background-size: cover;
+	transition: top var(--enemy-move-speed) linear, left var(--enemy-move-speed) linear;
+}
+
+
+
+player-avatar,
+enemy-avatar {
+	transform: scaleX(1.2) scaleY(1.2)
+}
+
+player-avatar.facing_left,
+enemy-avatar.facing_left {
+	transform: scaleX(-1.2) scaleY(1.2)
+}
+
+/* pixel art mode: ON */
+player-avatar,
+enemy-avatar,
+map-cell,
+.background,
+#map_border_bottom {
+	image-rendering: pixelated;
 }

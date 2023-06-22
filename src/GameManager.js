@@ -1,5 +1,6 @@
 "use strict";
 import Constants from "./Constants";
+import MapCell from "./MapCell";
 import GameMap from "./GameMap";
 import Player from "./Player";
 import Enemy from "./Enemy";
@@ -7,7 +8,8 @@ import PlayerStats from "./PlayerStats";
 
 export default class GameManager {
   static #instance;
-  static isDebug = false;
+  static #isDebug = true;
+  static #debugLog = false;
 
   // PLAY: normal play with turns timing
   // PAUSE: menu, shopts, etc.. main update runs but no turns
@@ -25,9 +27,10 @@ export default class GameManager {
       this.playerStats = new PlayerStats();
       this.gameState = GameManager.#GameState.STOP;
 
-      // define player and enemy custom HTML element
+      // define custom HTML element
       window.customElements.define("enemy-avatar", Enemy);
       window.customElements.define("player-avatar", Player);
+      window.customElements.define("map-cell", MapCell);
 
       this.startFrameTimer = performance.now();
       this.deltaTime = undefined; // millis
@@ -35,8 +38,15 @@ export default class GameManager {
       // start main update cycle
       this.#mainUpdate();
 
-      // FIXME: questo metodo la prima volta sarà chiamato dal giocatore al click su un pulsante
-      this.startGame();
+      if (GameManager.#isDebug) {
+        this.#startGame();
+      } else {
+        document
+          .querySelector("#overlay .play_button")
+          .addEventListener("click", () => {
+            this.#startGame();
+          });
+      }
     } else return GameManager.#instance;
   }
 
@@ -45,9 +55,20 @@ export default class GameManager {
     return new GameManager();
   }
 
-  startGame() {
+  #startGame() {
     this.#buildMap(this.playerStats);
     this.gameState = GameManager.#GameState.PLAY;
+
+    if (GameManager.#isDebug) {
+      document.querySelector("#overlay").remove();
+      return;
+    }
+
+    document.querySelector("#overlay").classList.add("isPlaying");
+
+    let audio = new Audio("/assets/music/main.mp3");
+    audio.volume = 0.2;
+    audio.play();
   }
 
   #buildMap(plStats) {
@@ -78,7 +99,7 @@ export default class GameManager {
   }
 
   static console_log(message) {
-    if (GameManager.isDebug) console.log(message);
+    if (GameManager.#debugLog) console.log(message);
   }
 
   nextMap() {

@@ -12,7 +12,10 @@ export default class Constants {
     map_columns: 30,
     map_rows: 7,
     test: "_test_",
-    turnTime: 200, // millis
+    turnTime: 250, // millis
+
+    playerStartPositionX: 1,
+    playerStartPositionY: 3,
 
     startingPlayerLevel: 1,
     basePlayerHp: 100,
