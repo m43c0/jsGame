@@ -218,10 +218,6 @@ player-avatar.walk {
 	background-image: url(/assets/characters/player/walk.png);
 }
 
-player-avatar.attack {
-	background-image: url(/assets/characters/player/attack.png);
-}
-
 player-avatar.death {
 	background-image: url(/assets/characters/player/death.png);
 }
@@ -233,20 +229,86 @@ enemy-avatar {
 	display: block;
 	position: absolute;
 	z-index: 9;
-	background-image: url(/assets/characters/eLv1/idle.png);
 	background-size: cover;
 	transition: top var(--enemy-move-speed) linear, left var(--enemy-move-speed) linear;
 	pointer-events: none;
+}
+
+
+enemy-avatar.lv1 {
+	background-image: url(/assets/characters/eLv1/idle.png);
+}
+
+enemy-avatar.lv2 {
+	background-image: url(/assets/characters/eLv2/idle.png);
+}
+
+enemy-avatar.lv3 {
+	background-image: url(/assets/characters/eLv3/idle.png);
+}
+
+enemy-avatar.lv4 {
+	background-image: url(/assets/characters/eLv4/idle.png);
+}
+
+enemy-avatar.walk.lv1 {
+	background-image: url(/assets/characters/eLv1/walk.png);
+}
+
+enemy-avatar.walk.lv2 {
+	background-image: url(/assets/characters/eLv2/walk.png);
+}
+
+enemy-avatar.walk.lv3 {
+	background-image: url(/assets/characters/eLv3/walk.png);
+}
+
+enemy-avatar.walk.lv4 {
+	background-image: url(/assets/characters/eLv4/walk.png);
+}
+
+enemy-avatar.death.lv1 {
+	background-image: url(/assets/characters/eLv1/death.png);
+}
+
+enemy-avatar.death.lv2 {
+	background-image: url(/assets/characters/eLv2/death.png);
+}
+
+enemy-avatar.death.lv3 {
+	background-image: url(/assets/characters/eLv3/death.png);
+}
+
+enemy-avatar.death.lv4 {
+	background-image: url(/assets/characters/eLv4/death.png);
+}
+
+
+enemy-avatar.attack {
+	background-image: unset;
+}
+
+
+.health_bar {
+	--hp-percentage: 100%;
+	position: relative;
+	margin: 0 auto;
+	top: var(--cell-size);
+	/* left: calc(var(--cell-size)/4);
+	width: calc(var(--cell-size)/2); */
+	width: calc(var(--hp-percentage) * 0.8);
+	height: calc(var(--cell-size) / 10);
+	border: 1px solid white;
+
 
 }
 
+player-avatar .health_bar {
+	background: #38edc0;
+}
+
 enemy-avatar .health_bar {
-	position: absolute;
-	bottom: 0px;
-	width: var(--cell-size);
-	height: calc(var(--cell-size) / 10);
-	background: red;
-	max-width: 100%;
+	background: #ed3838;
 }
 
 enemy-avatar.death {
@@ -262,6 +324,12 @@ enemy-avatar {
 player-avatar.facing_left,
 enemy-avatar.facing_left {
 	transform: scaleX(-1.2) scaleY(1.2)
+}
+
+player-avatar.facing_left .health_bar,
+enemy-avatar.facing_left .health_bar {
+	/* right: calc(var(--cell-size)/4);
+	left: auto */
 }
 
 /* pixel art mode: ON */

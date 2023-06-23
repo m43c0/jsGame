@@ -72,10 +72,10 @@ export default class GameMap {
 
     for (let y = 0; y < this.rows; y++)
       for (let x = 0; x < this.cols; x++) {
-        const ranomType = Math.random();
+        const randomType = Math.random();
         let cellType = MapCell.CellType.GRASS;
-        if (ranomType > 0.85) cellType = MapCell.CellType.TREE;
-        if (ranomType > 0.95) cellType = MapCell.CellType.ROCK;
+        if (randomType > 0.85) cellType = MapCell.CellType.TREE;
+        if (randomType > 0.95) cellType = MapCell.CellType.ROCK;
 
         const c = new MapCell(x, y, cellType);
 
@@ -87,9 +87,9 @@ export default class GameMap {
       }
 
     window.addEventListener("resize", (event) => {
-      this.setupSizes();
+      this.setupSizes(true);
     });
-    this.setupSizes();
+    this.setupSizes(false);
 
     // create player
     this.player = new Player();
@@ -114,8 +114,8 @@ export default class GameMap {
     }
 
     let totalEnemiesOnMap = Math.floor((mapLv + 2) / 2);
-    totalEnemiesOnMap = 2;
-    const enemyLevel = Math.floor(mapLv / 3) + 1;
+    totalEnemiesOnMap = 4;
+    //const enemyLevel = Math.floor(mapLv / 3) + 1;
 
     while (totalEnemiesOnMap > 0) {
       const enemyPositionX = GameMap.#randomIntFromInterval(5, this.cols - 2);
@@ -126,9 +126,9 @@ export default class GameMap {
         enemyPositionY
       );
 
-      if (!this.#isCellFree(cellToPlaceEnemy)) continue;
+      if (!GameMap.#isCellFree(cellToPlaceEnemy)) continue;
 
-      const enemy = new Enemy(this.playerStatsRef.mapLevel, "slime"); // TODO: enemy type
+      const enemy = new Enemy(totalEnemiesOnMap); // TODO: enemy type
       this.enemies.push(enemy);
       this.map_container.appendChild(enemy);
       this.#setGameEntityPositionInMap(enemy, cellToPlaceEnemy);
@@ -136,7 +136,7 @@ export default class GameMap {
     }
   }
 
-  setupSizes() {
+  setupSizes(repositionEntitiesOnMap) {
     // to avoid gaps betweens elements caused by float errors,
     // cell size must be an integer, and world container must be an integer multiple of cell size
     this.cell_size = parseInt(window.innerWidth / this.cols);
@@ -150,16 +150,43 @@ export default class GameMap {
       "--cell-size",
       this.cell_size + "px"
     );
+
+    if (repositionEntitiesOnMap) {
+      this.player.style.left = this.player.cell.x * this.cell_size + "px";
+      this.player.style.top = this.player.cell.y * this.cell_size + "px";
+      this.enemies.forEach((e) => {
+        e.style.left = e.cell.x * this.cell_size + "px";
+        e.style.top = e.cell.y * this.cell_size + "px";
+      });
+    }
   }
 
   update() {
-    // this.#dayNightCycle();
+    this.#dayNightCycle();
   }
 
   turnUpdate() {
-    if (this.player.hasTarget()) this.#movePlayerAvatar();
+    // FIXME: si potrebbe migliorare
+    if (
+      this.player.hasTarget() &&
+      !this.player.isAttacking &&
+      this.player.hp > 0
+    )
+      this.#movePlayerAvatar();
 
-    this.enemies.forEach((e) => e.turnUpdate());
+    this.enemies.forEach((e) => this.#enemyUpdate(e));
+  }
+
+  #enemyUpdate(enemy) {
+    if (enemy.hp <= 0) return;
+    if (this.player.hp <= 0) return; // FIXME: migliorare
+    if (GameMap.#areCellContiguous(enemy.cell, this.player.cell))
+      this.#attack(enemy, this.player);
+
+    if (Math.abs(enemy.cell.x - this.player.cell.x) < 5) {
+      enemy.setCurrentTargetCell(this.player.cell);
+      this.#moveEnemyAvatar(enemy);
+    }
   }
 
   #dayNightCycle() {
@@ -196,7 +223,7 @@ export default class GameMap {
 
   #movePlayerAvatar() {
     // imposto direzione
-    this.player.setDirection();
+    this.player.setDirection(this.player.getCurrentTargetCell());
     const nextCellCoords = this.player.getNextCellCoordsInCurrentDirection();
     const nextCell = this.#getCellFromCoords(
       nextCellCoords.x,
@@ -204,7 +231,7 @@ export default class GameMap {
     );
 
     // check se mi posso muovere in quella direzione
-    if (this.#isCellFree(nextCell)) {
+    if (GameMap.#isCellFree(nextCell)) {
       // si -> mi muovo in quella direzione
       this.#setGameEntityPositionInMap(this.player, nextCell);
       this.#setParallaxShift();
@@ -212,6 +239,24 @@ export default class GameMap {
     } else {
       // no -> mi fermo
       this.#stopPlayerMovements();
+    }
+  }
+
+  #moveEnemyAvatar(e) {
+    e.setDirection(e.getCurrentTargetCell());
+    const nextCellCoords = e.getNextCellCoordsInCurrentDirection();
+    const nextCell = this.#getCellFromCoords(
+      nextCellCoords.x,
+      nextCellCoords.y
+    );
+
+    // check se nemico si puo muovere in quella direzione
+    if (GameMap.#isCellFree(nextCell)) {
+      // si -> mi muovo in quella direzione
+      this.#setGameEntityPositionInMap(e, nextCell);
+    } else {
+      // no -> mi fermo
+      e.resetCurrentTargetCell();
     }
   }
 
@@ -236,16 +281,13 @@ export default class GameMap {
   }
 
   #setPlayerCurrentTarget(cell) {
+    if (this.player.hp <= 0) return; // FIXME: migliorare
+
     // fermo il Player se per caso si stava già muovendo
     this.#stopPlayerMovements();
-
+    console.log("set player current target");
     if (cell.currentEntity instanceof Enemy && cell.currentEntity.hp > 0)
-      if (
-        (Math.abs(this.player.cell.x - cell.x) == 1 &&
-          Math.abs(this.player.cell.y - cell.y) == 0) ||
-        (Math.abs(this.player.cell.y - cell.y) == 1 &&
-          Math.abs(this.player.cell.x - cell.x) == 0)
-      ) {
+      if (GameMap.#areCellContiguous(this.player.cell, cell)) {
         this.#attack(this.player, cell.currentEntity);
         return;
       }
@@ -261,20 +303,38 @@ export default class GameMap {
   }
 
   async #attack(attackingEntity, target) {
-    if (attackingEntity.classList.contains("attack")) {
-      console.log("noono");
-      return;
-    }
+    console.log("tentativo di attacco");
 
-    attackingEntity.classList.add("attack");
-    target.getHit(this.playerStatsRef.atk);
+    if (attackingEntity.isAttacking) return;
+    console.log("posso attaccare");
+    attackingEntity.setDirection(target.cell);
+    attackingEntity.isAttacking = true;
 
-    await this.aspetta(GameManager.getInstance().turnTime * 2);
+    // FIXME: se muore durante l'attacco, l'attacco va interrotto: sticazzi
+    const attackTime = GameManager.getInstance().turnTime * 2;
 
-    attackingEntity.classList.remove("attack");
+    let entityFolderName = "player";
+    if (attackingEntity instanceof Enemy)
+      entityFolderName = "eLv" + attackingEntity.level;
+
+    attackingEntity.style.backgroundImage =
+      "url(assets/characters/" + entityFolderName + "/attack1.png)";
+    await this.aspetta(attackTime / 3);
+    target.getHit(attackingEntity.atk);
+
+    attackingEntity.style.backgroundImage =
+      "url(assets/characters/" + entityFolderName + "/attack2.png)";
+    await this.aspetta(attackTime / 3);
+    attackingEntity.style.backgroundImage =
+      "url(assets/characters/" + entityFolderName + "/attack3.png)";
+    await this.aspetta(attackTime / 3);
+
+    attackingEntity.isAttacking = false;
+    console.log("fine attacco " + JSON.stringify(attackingEntity.isAttacking));
+    attackingEntity.style.backgroundImage = null;
   }
 
-  #isCellFree(cell) {
+  static #isCellFree(cell) {
     return cell.currentEntity == null;
   }
 
@@ -293,6 +353,13 @@ export default class GameMap {
   static #randomIntFromInterval(min, max) {
     // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  static #areCellContiguous(cell1, cell2) {
+    return (
+      (Math.abs(cell1.x - cell2.x) == 1 && Math.abs(cell1.y - cell2.y) == 0) ||
+      (Math.abs(cell1.y - cell2.y) == 1 && Math.abs(cell1.x - cell2.x) == 0)
+    );
   }
 
   /**

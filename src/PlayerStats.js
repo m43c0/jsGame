@@ -2,9 +2,6 @@ import Constants from "./Constants";
 export default class PlayerStats {
   "use strict";
   constructor() {
-    this.level = Constants.get("startingPlayerLevel");
-    this.hp = Constants.get("basePlayerHp") * this.level;
-    this.atk = Constants.get("basePlayerAtk") * this.level;
     this.exp = 0;
     this.expToNextLevel =
       Constants.get("basePlayerExpToNextLevel") * this.level;
@@ -24,9 +21,10 @@ export default class PlayerStats {
   levelUp() {
     // YAY
     this.level++;
-    this.hp = Constants.get("basePlayerHp") * this.level;
-    this.atk = Constants.get("basePlayerAtk") * this.level;
-    this.exp = 0;
+    // FIXME:
+    // this.hp = Constants.get("basePlayerHp") * this.level;
+    // this.atk = Constants.get("basePlayerAtk") * this.level;
+    // this.exp = 0;
     this.expToNextLevel =
       Constants.get("basePlayerExpToNextLevel") * this.level;
   }

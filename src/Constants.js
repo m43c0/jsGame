@@ -18,11 +18,12 @@ export default class Constants {
     playerStartPositionY: 3,
 
     startingPlayerLevel: 1,
-    basePlayerHp: 100,
+    basePlayerHp: 50,
     basePlayerAtk: 5,
     basePlayerExpToNextLevel: 10,
 
     baseEnemyHp: 10,
+    baseEnemyAtk: 5,
     baseEnemyExpDrop: 20,
     baseEnemyGoldDrop: 1,
 

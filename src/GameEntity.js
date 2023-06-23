@@ -4,21 +4,48 @@ export default class GameEntity extends HTMLElement {
   #currentDirection = Direction.Down;
   #currentTargetCell = null;
   cell = null;
+
+  level;
+  maxHp;
+  hp;
+  atk;
+  isAttacking = false;
+
   constructor() {
     super();
+
+    this.healthBar = document.createElement("div");
+    this.healthBar.classList.add("health_bar");
+    this.appendChild(this.healthBar);
   }
 
-  setDirection() {
-    if (this.#currentTargetCell.y < this.cell.y)
-      this.#currentDirection = Direction.Up;
-    else if (this.#currentTargetCell.x > this.cell.x) {
+  getHit(atkPower) {
+    this.hp = Math.max(0, this.hp - atkPower);
+    this.healthBar.style.setProperty(
+      "--hp-percentage",
+      (this.hp * 100) / this.maxHp + "%"
+    );
+    if (this.hp <= 0) this.die();
+  }
+
+  die() {
+    this.healthBar.remove();
+    this.cell.currentEntity = null;
+    this.classList.add("death");
+  }
+
+  setDirection(cellToLook) {
+    if (cellToLook.y < this.cell.y) this.#currentDirection = Direction.Up;
+    else if (cellToLook.x > this.cell.x) {
       this.#currentDirection = Direction.Right;
-      this.classList.remove("facing_left");
-    } else if (this.#currentTargetCell.y > this.cell.y)
+      if (this.classList.contains("facing_left"))
+        this.classList.remove("facing_left");
+    } else if (cellToLook.y > this.cell.y)
       this.#currentDirection = Direction.Down;
-    else if (this.#currentTargetCell.x < this.cell.x) {
+    else if (cellToLook.x < this.cell.x) {
       this.#currentDirection = Direction.Left;
-      this.classList.add("facing_left");
+      if (!this.classList.contains("facing_left"))
+        this.classList.add("facing_left");
     }
   }
 
@@ -39,6 +66,9 @@ export default class GameEntity extends HTMLElement {
   setCurrentTargetCell(targetCell) {
     this.#currentTargetCell = targetCell;
     this.classList.add("walk");
+  }
+  getCurrentTargetCell() {
+    return this.#currentTargetCell;
   }
   resetCurrentTargetCell() {
     this.#currentTargetCell = null;
