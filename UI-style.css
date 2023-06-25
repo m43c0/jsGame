@@ -1,0 +1,90 @@
+#UI {
+    display: flex;
+    font-size: 2vw;
+    color: white;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+}
+
+#UI .UI_current_map {}
+
+#UI .player_info_container {
+    display: flex;
+    padding: 5px 20px;
+    z-index: 20;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+
+
+#UI_current_weapon {
+    background-image: url(assets/ui/sword_1.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: var(--cell-size);
+    height: var(--cell-size);
+}
+
+#UI_current_weapon.lv2 {
+    background-image: url(assets/ui/sword_2.png);
+}
+
+#UI_current_weapon.lv3 {
+    background-image: url(assets/ui/sword_3.png);
+}
+
+#UI_current_weapon.lv4 {
+    background-image: url(assets/ui/sword_4.png);
+}
+
+#UI_current_weapon.lv5 {
+    background-image: url(assets/ui/sword_5.png);
+}
+
+#UI .UI_current_gold {
+    position: relative;
+    margin-right: var(--cell-size);
+    margin-left: var(--cell-size);
+}
+
+#UI .UI_current_gold:after {
+    content: "";
+    position: absolute;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    right: calc(var(--cell-size) *-1);
+    transform: translateY(-25%);
+    background-image: url(assets/ui/coins.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+#UI .player_level {}
+
+#UI .UI_exp_container {
+    width: 30vw;
+    height: calc(var(--cell-size) / 2);
+    border: 1px solid white;
+    margin: 5px 20px;
+}
+
+#UI .UI_exp_current {
+    background-color: gold;
+    height: 100%;
+    transition: width .2s ease;
+}
+
+#UI_level_up {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 7vw;
+    color: goldenrod;
+    text-shadow: -5px -5px 0px black;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s ease;
+}

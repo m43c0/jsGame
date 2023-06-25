@@ -14,7 +14,8 @@ export default class GameMap {
     currentTimeOfDay,
     playerLevel,
     playerHp,
-    playerExp
+    playerExp,
+    playerWeaponLevel
   ) {
     "use strict";
     this.cols = Constants.get("map_columns");
@@ -100,7 +101,12 @@ export default class GameMap {
     this.setupSizes(false);
 
     // create player
-    this.player = new Player(playerLevel, playerHp, playerExp);
+    this.player = new Player(
+      playerLevel,
+      playerHp,
+      playerExp,
+      playerWeaponLevel
+    );
     this.map_container.appendChild(this.player);
 
     this.#setGameEntityPositionInMap(
@@ -295,23 +301,18 @@ export default class GameMap {
   #checkIfPlayerArrivedAtDestination() {
     // se sono sull'ultima colonna -> prossima mappa
     let nextMap = 0;
-    if (this.player.cell.x >= this.cols - 1) {
+    if (this.player.cell.x >= this.cols - 1) nextMap = 1;
+
+    if (this.player.cell.x <= 0 && this.mapLevel > 1) nextMap = -1;
+
+    if (nextMap != 0) {
       GameManager.getInstance().changeMap(
-        1,
+        nextMap,
         this.currentTimeOfDay,
         this.player.level,
         this.player.hp,
-        this.player.currentExp
-      );
-      return;
-    }
-    if (this.player.cell.x <= 0 && this.mapLevel > 1) {
-      GameManager.getInstance().changeMap(
-        -1,
-        this.currentTimeOfDay,
-        this.player.level,
-        this.player.hp,
-        this.player.currentExp
+        this.player.currentExp,
+        this.player.weaponLv
       );
       return;
     }

@@ -39,19 +39,42 @@ export default class GameManager {
       this.backGroundMusic.volume = 0.1;
       this.backGroundMusic.loop = true;
 
-      this.currentGold = 0;
-
       // UI
-      this.ui = document.getElementById("main_ui");
+      this.ui = document.getElementById("UI");
+
+      const player_info_container = document.createElement("div");
+      player_info_container.classList.add("player_info_container");
+
       this.playerLevelUI = document.createElement("div");
-      this.playerLevelUI.id = "UI_player_level";
+      this.playerLevelUI.classList.add("player_level");
+
       const playerExpUIContainer = document.createElement("div");
-      playerExpUIContainer.id = "UI_exp_container";
+      playerExpUIContainer.classList.add("UI_exp_container");
       this.playerExpUI = document.createElement("div");
-      this.playerExpUI.id = "UI_exp_current";
+      this.playerExpUI.classList.add("UI_exp_current");
       playerExpUIContainer.appendChild(this.playerExpUI);
-      this.ui.appendChild(this.playerLevelUI);
-      this.ui.appendChild(playerExpUIContainer);
+
+      this.currentMapUI = document.createElement("div");
+      this.currentMapUI.classList.add("UI_current_map");
+      this.currentWeaponUI = document.createElement("div");
+      this.currentWeaponUI.id = "UI_current_weapon";
+      this.currentGoldUI = document.createElement("div");
+      this.currentGoldUI.classList.add("UI_current_gold");
+
+      this.ui.appendChild(this.currentMapUI);
+      player_info_container.appendChild(this.playerLevelUI);
+      player_info_container.appendChild(playerExpUIContainer);
+      player_info_container.appendChild(this.currentWeaponUI);
+      player_info_container.appendChild(this.currentGoldUI);
+
+      this.ui.appendChild(player_info_container);
+
+      const levelUpBanner = document.createElement("div");
+      levelUpBanner.id = "UI_level_up";
+      document.getElementById("root").appendChild(levelUpBanner);
+
+      this.currentGold = 0;
+      this.addGold(0); // set html of gold ui element to "0"
 
       // start main update cycle
       this.#mainUpdate();
@@ -100,7 +123,13 @@ export default class GameManager {
     });
   }
 
-  #buildMap(currentTimeOfDay, playerLevel, playerHp, playerExp) {
+  #buildMap(
+    currentTimeOfDay,
+    playerLevel,
+    playerHp,
+    playerExp,
+    playerWeaponLevel
+  ) {
     this.map = null;
     // build map
     this.map = new GameMap(
@@ -108,10 +137,11 @@ export default class GameManager {
       currentTimeOfDay,
       playerLevel,
       playerHp,
-      playerExp
+      playerExp,
+      playerWeaponLevel
     );
 
-    this.updateUI(playerLevel, playerExp);
+    this.updateUI(playerLevel, playerExp, playerWeaponLevel);
   }
 
   #mainUpdate() {
@@ -139,14 +169,27 @@ export default class GameManager {
     if (GameManager.#debugLog) console.log(message);
   }
 
-  changeMap(change, currentTimeOfDay, playerLevel, playerHp, playerExp) {
+  changeMap(
+    change,
+    currentTimeOfDay,
+    playerLevel,
+    playerHp,
+    playerExp,
+    playerWeaponLevel
+  ) {
     this.gameState = GameManager.GameState.STOP;
 
     // animate out
 
     // create new map
     this.mapLevel += change;
-    this.#buildMap(currentTimeOfDay, playerLevel, playerHp, playerExp);
+    this.#buildMap(
+      currentTimeOfDay,
+      playerLevel,
+      playerHp,
+      playerExp,
+      playerWeaponLevel
+    );
 
     // animate in
 
@@ -182,13 +225,13 @@ export default class GameManager {
   }
 
   updateUI(lv, exp) {
-    this.playerLevelUI.innerHTML =
-      "Map: " + this.mapLevel + " - Player Lv" + lv;
+    this.currentMapUI.innerHTML = "Map:" + this.mapLevel;
+    this.playerLevelUI.innerHTML = "Lv" + lv;
     const expBarFill = Math.floor(
       (exp * 100) / (Constants.get("basePlayerExpToNextLevel") * lv)
     );
 
-    // if level up -> reach 100% before
+    // if level up -> reach 100% before going back to zero
     if (parseInt(this.playerExpUI.style.width, 10) > expBarFill) {
       this.playerExpUI.style.width = "100%";
       setTimeout(() => {
@@ -199,5 +242,11 @@ export default class GameManager {
 
   addGold(coins) {
     this.currentGold += coins;
+    this.currentGoldUI.innerHTML = this.currentGold;
+  }
+
+  changePlayerWeaponUI(weaponLv) {
+    this.currentWeaponUI.className = "";
+    this.currentWeaponUI.classList.add();
   }
 }

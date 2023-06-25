@@ -74,40 +74,6 @@ body {
 	align-items: center;
 }
 
-#main_ui {
-	color: white;
-	display: flex;
-	gap: 40px;
-	padding: 5px 10px;
-	z-index: 20;
-}
-
-#UI_player_level {
-	font-size: 2vw;
-}
-
-#UI_exp_container {
-	width: 30vw;
-	border: 1px solid white;
-}
-
-#UI_exp_current {
-	background-color: gold;
-	height: 100%;
-	transition: width .2s ease;
-}
-
-#UI_level_up {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	font-size: 7vw;
-	color: goldenrod;
-	text-shadow: -5px -5px 0px black;
-}
-
-
 #world_container {
 	width: var(--world-width);
 	position: relative;

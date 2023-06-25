@@ -46,7 +46,11 @@ export default class Player extends GameEntity {
       this.currentExp = expLeftAfterLvUp;
     } else this.currentExp = totalExp;
 
-    GameManager.getInstance().updateUI(this.level, this.currentExp);
+    GameManager.getInstance().updateUI(
+      this.level,
+      this.currentExp,
+      this.weaponLv
+    );
   }
 
   levelUp() {
