@@ -9,21 +9,21 @@ export default class Constants {
 
   // private object used as DB for constants and accessed by the static 'get' method.
   static #constantsDB = {
-    map_columns: 30,
-    map_rows: 7,
+    map_columns: 20,
+    map_rows: 5,
     test: "_test_",
-    turnTime: 300, // millis
+    turnTime: 400, // millis
 
     playerStartPositionX: 1,
     playerStartPositionY: 3,
 
     startingPlayerLevel: 1,
     basePlayerHp: 50,
-    basePlayerAtk: 5,
-    basePlayerExpToNextLevel: 10,
+    basePlayerAtk: 100,
+    basePlayerExpToNextLevel: 30,
 
     baseEnemyHp: 10,
-    baseEnemyAtk: 5,
+    baseEnemyAtk: 10,
     baseEnemyExpDrop: 20,
     baseEnemyGoldDrop: 1,
 

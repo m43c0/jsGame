@@ -1,3 +1,4 @@
+import Constants from "./Constants";
 import { Direction } from "./Direction";
 
 export default class GameEntity extends HTMLElement {
@@ -9,6 +10,7 @@ export default class GameEntity extends HTMLElement {
   maxHp;
   hp;
   atk;
+  weaponLv;
   isAttacking = false;
 
   constructor() {
@@ -17,22 +19,43 @@ export default class GameEntity extends HTMLElement {
     this.healthBar = document.createElement("div");
     this.healthBar.classList.add("health_bar");
     this.appendChild(this.healthBar);
+
+    this.damageLabel = document.createElement("span");
+    this.damageLabel.classList.add("damage_label");
+    this.appendChild(this.damageLabel);
+    this.damageLabel.style.setProperty(
+      "--display-time",
+      Constants.get("turnTime") + "ms"
+    );
   }
 
-  getHit(atkPower) {
-    this.hp = Math.max(0, this.hp - atkPower);
+  getHit(attackingEntity) {
+    this.hp = Math.max(0, this.hp - attackingEntity.atk);
+    this.damageLabel.innerHTML = attackingEntity.atk;
+    const turnTime = Constants.get("turnTime");
+    this.damageLabel.classList.add("active");
+    setTimeout(() => {
+      this.damageLabel.classList.remove("active");
+    }, turnTime);
+
+    this.updateHealthBar();
+    if (this.hp <= 0) this.die(attackingEntity);
+  }
+
+  updateHealthBar() {
     this.healthBar.style.setProperty(
       "--hp-percentage",
       (this.hp * 100) / this.maxHp + "%"
     );
-    if (this.hp <= 0) this.die();
   }
 
-  die() {
+  die(killer) {
     this.healthBar.remove();
     this.cell.currentEntity = null;
     this.classList.add("death");
+    this.signalDeath(killer);
   }
+  signalDeath(killer) {}
 
   setDirection(cellToLook) {
     if (cellToLook.y < this.cell.y) this.#currentDirection = Direction.Up;
@@ -48,11 +71,21 @@ export default class GameEntity extends HTMLElement {
         this.classList.add("facing_left");
     }
   }
+  getCurrentDirection() {
+    return this.#currentDirection;
+  }
 
   getNextCellCoordsInCurrentDirection() {
     return {
       x: this.cell.x + this.#currentDirection.x,
       y: this.cell.y + this.#currentDirection.y,
+    };
+  }
+
+  getNextCellCoordsInDirection(direction) {
+    return {
+      x: this.cell.x + direction.x,
+      y: this.cell.y + direction.y,
     };
   }
 

@@ -3,10 +3,19 @@ import GameManager from "./GameManager";
 import MapCell from "./MapCell";
 import Player from "./Player";
 import Enemy from "./Enemy";
+import GameEntity from "./GameEntity";
+import { Direction } from "./Direction";
+import Boss from "./Boss";
 
 export default class GameMap {
   #cells = [];
-  constructor(playerStats) {
+  constructor(
+    currentMapLevel,
+    currentTimeOfDay,
+    playerLevel,
+    playerHp,
+    playerExp
+  ) {
     "use strict";
     this.cols = Constants.get("map_columns");
     this.rows = Constants.get("map_rows");
@@ -16,10 +25,9 @@ export default class GameMap {
     this.map_container = null;
     this.enemies = [];
     this.locations = [];
+    this.mapLevel = currentMapLevel;
 
-    this.timeOfDay = 0;
-
-    this.playerStatsRef = playerStats;
+    this.timeOfDay = currentTimeOfDay;
 
     // MAP DOM elements
     const rootElement = document.getElementById("root");
@@ -74,8 +82,8 @@ export default class GameMap {
       for (let x = 0; x < this.cols; x++) {
         const randomType = Math.random();
         let cellType = MapCell.CellType.GRASS;
-        if (randomType > 0.85) cellType = MapCell.CellType.TREE;
-        if (randomType > 0.95) cellType = MapCell.CellType.ROCK;
+        if (randomType > 0.9) cellType = MapCell.CellType.TREE;
+        if (randomType > 0.99) cellType = MapCell.CellType.ROCK;
 
         const c = new MapCell(x, y, cellType);
 
@@ -92,7 +100,7 @@ export default class GameMap {
     this.setupSizes(false);
 
     // create player
-    this.player = new Player();
+    this.player = new Player(playerLevel, playerHp, playerExp);
     this.map_container.appendChild(this.player);
 
     this.#setGameEntityPositionInMap(
@@ -105,19 +113,35 @@ export default class GameMap {
     this.#setParallaxShift(); // reset parallax (for successive maps)
 
     // enemies
-    const mapLv = this.playerStatsRef.mapLevel;
-    const isCity = mapLv % 3 === 0 || mapLv % 7 === 0 || mapLv % 13 === 0;
-    if (isCity) {
-      // TODO: place city
+    const mapLv = this.mapLevel;
+    const isCity = mapLv === 3 || mapLv === 7 || mapLv === 13 || mapLv === 16;
 
+    if (isCity) {
+      const cityX = GameMap.#randomIntFromInterval(8, this.cols - 5);
+      const cityY = GameMap.#randomIntFromInterval(2, this.rows - 5);
+      const cellToPlaceCity = this.#getCellFromCoords(cityX, cityY);
+      cellToPlaceCity.setupCity();
+      return;
+    }
+    if (mapLv === 17) {
+      const bossX = GameMap.#randomIntFromInterval(8, this.cols - 5);
+      const bossY = GameMap.#randomIntFromInterval(2, this.rows - 5);
+      const cellToPlaceBoss = this.#getCellFromCoords(cityX, cityY);
+      const boss = new Boss();
+      this.enemies.push(boss);
+      this.map_container.appendChild(boss);
+      this.#setGameEntityPositionInMap(boss, cellToPlaceBoss);
       return;
     }
 
-    let totalEnemiesOnMap = Math.floor((mapLv + 2) / 2);
-    totalEnemiesOnMap = 4;
-    //const enemyLevel = Math.floor(mapLv / 3) + 1;
+    const totalEnemiesOnMap = Math.floor((mapLv + 2) / 2);
 
-    while (totalEnemiesOnMap > 0) {
+    const enemiesMinLevel = Math.floor(mapLv / 5 + 1);
+    const enemiesMaxLevel = Math.floor(mapLv / 3 + 1);
+
+    let enemiesPlaced = totalEnemiesOnMap;
+
+    while (enemiesPlaced > 0) {
       const enemyPositionX = GameMap.#randomIntFromInterval(5, this.cols - 2);
       const enemyPositionY = GameMap.#randomIntFromInterval(1, this.rows - 2);
 
@@ -128,11 +152,14 @@ export default class GameMap {
 
       if (!GameMap.#isCellFree(cellToPlaceEnemy)) continue;
 
-      const enemy = new Enemy(totalEnemiesOnMap); // TODO: enemy type
+      let enemyLevel = 0;
+      if (enemiesPlaced < totalEnemiesOnMap / 2) enemyLevel = enemiesMinLevel;
+      else enemyLevel = enemiesMaxLevel;
+      const enemy = new Enemy(enemyLevel);
       this.enemies.push(enemy);
       this.map_container.appendChild(enemy);
       this.#setGameEntityPositionInMap(enemy, cellToPlaceEnemy);
-      totalEnemiesOnMap--;
+      enemiesPlaced--;
     }
   }
 
@@ -166,12 +193,7 @@ export default class GameMap {
   }
 
   turnUpdate() {
-    // FIXME: si potrebbe migliorare
-    if (
-      this.player.hasTarget() &&
-      !this.player.isAttacking &&
-      this.player.hp > 0
-    )
+    if (this.player.hasTarget() && !this.player.isAttacking)
       this.#movePlayerAvatar();
 
     this.enemies.forEach((e) => this.#enemyUpdate(e));
@@ -179,11 +201,13 @@ export default class GameMap {
 
   #enemyUpdate(enemy) {
     if (enemy.hp <= 0) return;
-    if (this.player.hp <= 0) return; // FIXME: migliorare
     if (GameMap.#areCellContiguous(enemy.cell, this.player.cell))
       this.#attack(enemy, this.player);
 
-    if (Math.abs(enemy.cell.x - this.player.cell.x) < 5) {
+    if (
+      Math.abs(enemy.cell.x - this.player.cell.x) < 4 &&
+      Math.abs(enemy.cell.y - this.player.cell.y) < 4
+    ) {
       enemy.setCurrentTargetCell(this.player.cell);
       this.#moveEnemyAvatar(enemy);
     }
@@ -194,7 +218,7 @@ export default class GameMap {
     // 0: 6AM
     // 100: 6PM
     // 200: 6AM
-    this.timeOfDay += 0.1;
+    this.timeOfDay += 0.05;
     if (this.timeOfDay >= 200) this.timeOfDay = 0;
     // colori. da 0 a 100 giorno pieno. da 100 a 150 passa da giorno a notte e da 150 a 200 passa da notte a giorno
     if (this.timeOfDay >= 100) {
@@ -236,6 +260,7 @@ export default class GameMap {
       this.#setGameEntityPositionInMap(this.player, nextCell);
       this.#setParallaxShift();
       this.#checkIfPlayerArrivedAtDestination();
+      this.#checkIfPlayerArrivedInCity();
     } else {
       // no -> mi fermo
       this.#stopPlayerMovements();
@@ -269,8 +294,25 @@ export default class GameMap {
 
   #checkIfPlayerArrivedAtDestination() {
     // se sono sull'ultima colonna -> prossima mappa
+    let nextMap = 0;
     if (this.player.cell.x >= this.cols - 1) {
-      GameManager.getInstance().nextMap();
+      GameManager.getInstance().changeMap(
+        1,
+        this.currentTimeOfDay,
+        this.player.level,
+        this.player.hp,
+        this.player.currentExp
+      );
+      return;
+    }
+    if (this.player.cell.x <= 0 && this.mapLevel > 1) {
+      GameManager.getInstance().changeMap(
+        -1,
+        this.currentTimeOfDay,
+        this.player.level,
+        this.player.hp,
+        this.player.currentExp
+      );
       return;
     }
 
@@ -279,13 +321,21 @@ export default class GameMap {
       this.#stopPlayerMovements();
     }
   }
+  #checkIfPlayerArrivedInCity() {
+    if (this.player.cell.isCity) {
+      this.#stopPlayerMovements();
+      this.player.recoverAllHp();
+
+      GameManager.getInstance().playerEnterInCity();
+    }
+  }
 
   #setPlayerCurrentTarget(cell) {
-    if (this.player.hp <= 0) return; // FIXME: migliorare
+    if (GameManager.getInstance().gameState != GameManager.GameState.PLAY)
+      return;
 
     // fermo il Player se per caso si stava già muovendo
     this.#stopPlayerMovements();
-    console.log("set player current target");
     if (cell.currentEntity instanceof Enemy && cell.currentEntity.hp > 0)
       if (GameMap.#areCellContiguous(this.player.cell, cell)) {
         this.#attack(this.player, cell.currentEntity);
@@ -303,14 +353,16 @@ export default class GameMap {
   }
 
   async #attack(attackingEntity, target) {
-    console.log("tentativo di attacco");
+    if (attackingEntity instanceof Player) console.log("tentativo di attacco");
 
-    if (attackingEntity.isAttacking) return;
-    console.log("posso attaccare");
-    attackingEntity.setDirection(target.cell);
+    if (attackingEntity.isAttacking) {
+      if (attackingEntity instanceof Player) console.log("NON posso attaccare");
+      return;
+    }
+    if (attackingEntity instanceof Player) console.log("posso attaccare");
     attackingEntity.isAttacking = true;
+    attackingEntity.setDirection(target.cell);
 
-    // FIXME: se muore durante l'attacco, l'attacco va interrotto: sticazzi
     const attackTime = GameManager.getInstance().turnTime * 2;
 
     let entityFolderName = "player";
@@ -319,18 +371,19 @@ export default class GameMap {
 
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack1.png)";
+
+    //target.classList.add("hit");
     await this.aspetta(attackTime / 3);
-    target.getHit(attackingEntity.atk);
+    if (attackingEntity instanceof Player)
+      console.log("COLPITO per danni " + attackingEntity.atk);
+    target.getHit(attackingEntity);
 
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack2.png)";
-    await this.aspetta(attackTime / 3);
-    attackingEntity.style.backgroundImage =
-      "url(assets/characters/" + entityFolderName + "/attack3.png)";
-    await this.aspetta(attackTime / 3);
+    await this.aspetta(attackTime / 1.5);
+    //target.classList.remove("hit");
 
     attackingEntity.isAttacking = false;
-    console.log("fine attacco " + JSON.stringify(attackingEntity.isAttacking));
     attackingEntity.style.backgroundImage = null;
   }
 

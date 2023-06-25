@@ -10,5 +10,12 @@ export default class MapCell extends HTMLElement {
     this.classList.add(type + "_" + (Math.floor(Math.random() * 3) + 1));
 
     this.currentEntity = null;
+
+    this.isCity = false;
+  }
+
+  setupCity() {
+    this.isCity = true;
+    this.classList.add("city");
   }
 }
