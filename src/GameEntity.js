@@ -30,8 +30,10 @@ export default class GameEntity extends HTMLElement {
   }
 
   getHit(attackingEntity) {
-    this.hp = Math.max(0, this.hp - attackingEntity.atk);
-    this.damageLabel.innerHTML = attackingEntity.atk;
+    const attackPower = attackingEntity.atk * attackingEntity.weaponLv;
+    this.hp = Math.max(0, this.hp - attackPower);
+
+    this.damageLabel.innerHTML = attackPower;
     const turnTime = Constants.get("turnTime");
     this.damageLabel.classList.add("active");
     setTimeout(() => {

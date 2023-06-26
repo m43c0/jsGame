@@ -4,6 +4,7 @@ import MapCell from "./MapCell";
 import GameMap from "./GameMap";
 import Player from "./Player";
 import Enemy from "./Enemy";
+import ShopMenu from "./ShopMenu";
 
 export default class GameManager {
   static #instance;
@@ -69,9 +70,17 @@ export default class GameManager {
 
       this.ui.appendChild(player_info_container);
 
+      this.changeMapCurtain = document.createElement("div");
+      this.changeMapCurtain.id = "change_map_curtain";
+      this.ui.appendChild(this.changeMapCurtain);
+
       const levelUpBanner = document.createElement("div");
       levelUpBanner.id = "UI_level_up";
       document.getElementById("root").appendChild(levelUpBanner);
+
+      // city shopping menu
+      this.shopMenu = new ShopMenu();
+      this.ui.appendChild(this.shopMenu);
 
       this.currentGold = 0;
       this.addGold(0); // set html of gold ui element to "0"
@@ -169,7 +178,7 @@ export default class GameManager {
     if (GameManager.#debugLog) console.log(message);
   }
 
-  changeMap(
+  async changeMap(
     change,
     currentTimeOfDay,
     playerLevel,
@@ -180,6 +189,9 @@ export default class GameManager {
     this.gameState = GameManager.GameState.STOP;
 
     // animate out
+    if (change > 0) this.changeMapCurtain.classList.add("close_to_left");
+    else this.changeMapCurtain.classList.add("close_to_right");
+    await this.aspetta(1000);
 
     // create new map
     this.mapLevel += change;
@@ -192,7 +204,10 @@ export default class GameManager {
     );
 
     // animate in
-
+    if (change > 0) this.changeMapCurtain.classList.add("open_to_left");
+    else this.changeMapCurtain.classList.add("open_to_right");
+    await this.aspetta(1000);
+    this.changeMapCurtain.className = "";
     this.gameState = GameManager.GameState.PLAY;
   }
 
@@ -213,18 +228,22 @@ export default class GameManager {
 
   finish() {
     this.gameState = GameManager.GameState.STOP;
-    console.log("you win");
+    const overlay = document.querySelector("#overlay");
+    overlay.querySelector(".overlay_text").innerHTML = "You beat the game";
+    overlay.querySelector(".play_button").innerHTML = "thank you for playing";
+    overlay.classList.remove("isPlaying");
   }
 
-  playerEnterInCity() {
+  playerEnterInCity(player) {
     this.gameState = GameManager.GameState.PAUSE;
+    this.shopMenu.openMenu(player, this.gold);
   }
 
   playerExitFromCity() {
     this.gameState = GameManager.GameState.PLAY;
   }
 
-  updateUI(lv, exp) {
+  async updateUI(lv, exp) {
     this.currentMapUI.innerHTML = "Map:" + this.mapLevel;
     this.playerLevelUI.innerHTML = "Lv" + lv;
     const expBarFill = Math.floor(
@@ -245,8 +264,18 @@ export default class GameManager {
     this.currentGoldUI.innerHTML = this.currentGold;
   }
 
+  async showLvUpBanner() {
+    document.getElementById("UI_level_up").classList.add("active");
+    await aspetta(1000);
+    document.getElementById("UI_level_up").classList.remove("active");
+  }
+
   changePlayerWeaponUI(weaponLv) {
     this.currentWeaponUI.className = "";
     this.currentWeaponUI.classList.add();
+  }
+
+  aspetta(ms) {
+    return new Promise((res) => setTimeout(res, ms));
   }
 }

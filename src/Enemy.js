@@ -14,7 +14,7 @@ export default class Enemy extends GameEntity {
     this.maxHp = this.level * Constants.get("baseEnemyHp");
     this.hp = this.maxHp;
     this.weaponLv = 1;
-    this.atk = (((Constants.get("baseEnemyAtk") * lv) / 2) * this.weaponLv) / 2;
+    this.atk = Constants.get("baseEnemyAtk") * lv;
 
     const turnTime = Constants.get("turnTime") * 0.8;
     this.style.setProperty("--enemy-move-speed", turnTime + "ms");

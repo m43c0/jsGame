@@ -4,15 +4,17 @@
     color: white;
     justify-content: space-between;
     align-items: center;
-    padding: 5px;
 }
 
-#UI .UI_current_map {}
+#UI .UI_current_map {
+    padding: 10px;
+    z-index: 9;
+}
 
 #UI .player_info_container {
     display: flex;
     padding: 5px 20px;
-    z-index: 20;
+    z-index: 10;
     align-items: center;
     justify-content: flex-end;
 }
@@ -86,5 +88,95 @@
     text-shadow: -5px -5px 0px black;
     pointer-events: none;
     opacity: 0;
-    transition: opacity .2s ease;
+    transition: opacity .5s ease;
 }
+
+#UI_level_up.active {
+    opacity: 1;
+}
+
+#change_map_curtain {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    width: 100dvw;
+    height: 100vh;
+    height: 100dvh;
+    background-color: black;
+    z-index: 8;
+    opacity: 0;
+    pointer-events: none;
+
+    --closed: polygon(100% 0, 0 0, 0 100%, 100% 100%);
+    --open-left: polygon(0 0, 0 0, 0 100%, 0% 100%);
+    --open-right: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+
+    --curtain-anim-time: 1s;
+}
+
+
+#change_map_curtain.close_to_left {
+    opacity: 1;
+    animation: close_to_left var(--curtain-anim-time) ease;
+}
+
+#change_map_curtain.open_to_left {
+    opacity: 1;
+    animation: open_to_left var(--curtain-anim-time) ease;
+}
+
+#change_map_curtain.close_to_right {
+    opacity: 1;
+    animation: close_to_right var(--curtain-anim-time) ease;
+}
+
+#change_map_curtain.open_to_right {
+    opacity: 1;
+    animation: open_to_right var(--curtain-anim-time) ease;
+}
+
+@keyframes close_to_right {
+    from {
+        clip-path: var(--open-left)
+    }
+
+    to {
+        clip-path: var(--closed)
+    }
+}
+
+@keyframes open_to_right {
+    from {
+        clip-path: var(--closed)
+    }
+
+    to {
+        clip-path: var(--open-right)
+    }
+}
+
+@keyframes close_to_left {
+    from {
+        clip-path: var(--open-right)
+    }
+
+    to {
+        clip-path: var(--closed)
+    }
+}
+
+@keyframes open_to_left {
+    from {
+        clip-path: var(--closed)
+    }
+
+    to {
+        clip-path: var(--open-left)
+    }
+}
+
+
+
+
+#UI_city_menu {}

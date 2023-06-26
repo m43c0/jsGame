@@ -327,7 +327,7 @@ export default class GameMap {
       this.#stopPlayerMovements();
       this.player.recoverAllHp();
 
-      GameManager.getInstance().playerEnterInCity();
+      GameManager.getInstance().playerEnterInCity(this.player);
     }
   }
 
@@ -354,13 +354,8 @@ export default class GameMap {
   }
 
   async #attack(attackingEntity, target) {
-    if (attackingEntity instanceof Player) console.log("tentativo di attacco");
+    if (attackingEntity.isAttacking) return;
 
-    if (attackingEntity.isAttacking) {
-      if (attackingEntity instanceof Player) console.log("NON posso attaccare");
-      return;
-    }
-    if (attackingEntity instanceof Player) console.log("posso attaccare");
     attackingEntity.isAttacking = true;
     attackingEntity.setDirection(target.cell);
 
@@ -375,8 +370,7 @@ export default class GameMap {
 
     //target.classList.add("hit");
     await this.aspetta(attackTime / 3);
-    if (attackingEntity instanceof Player)
-      console.log("COLPITO per danni " + attackingEntity.atk);
+
     target.getHit(attackingEntity);
 
     attackingEntity.style.backgroundImage =

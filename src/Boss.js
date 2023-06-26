@@ -11,6 +11,7 @@ export default class Boss extends Enemy {
     this.maxHp = 9999;
     this.hp = this.maxHp;
     this.atk = 100;
+    this.weaponLv = 9;
 
     const turnTime = Constants.get("turnTime") * 0.8;
     this.style.setProperty("--enemy-move-speed", turnTime + "ms");

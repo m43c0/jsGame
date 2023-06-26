@@ -15,8 +15,7 @@ export default class Player extends GameEntity {
     this.hp = currentHp;
     (this.weaponLv = weaponLevel ? undefined : 1), weaponLevel;
 
-    this.atk =
-      (((Constants.get("basePlayerAtk") * this.level) / 2) * this.weaponLv) / 2;
+    this.atk = Constants.get("basePlayerAtk") * this.level;
 
     this.currentExp = exp;
     this.expToNextLevel =
@@ -56,6 +55,7 @@ export default class Player extends GameEntity {
   levelUp() {
     // YAY
     this.level++;
+    GameManager.getInstance().showLvUpBanner();
     this.maxHp = this.level * Constants.get("basePlayerHp");
     this.hp = this.maxHp;
     this.atk = Constants.get("basePlayerAtk") * this.level;
