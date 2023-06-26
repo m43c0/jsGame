@@ -30,6 +30,7 @@ export default class GameManager {
       window.customElements.define("enemy-avatar", Enemy);
       window.customElements.define("player-avatar", Player);
       window.customElements.define("map-cell", MapCell);
+      window.customElements.define("shop-menu", ShopMenu);
 
       this.mapLevel = Constants.get("mapStartingLevel");
 
