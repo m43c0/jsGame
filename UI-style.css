@@ -2,13 +2,14 @@
     display: flex;
     font-size: 2vw;
     color: white;
+    background-color: darkslateblue;
     justify-content: space-between;
     align-items: center;
 }
 
 #UI .UI_current_map {
     padding: 10px;
-    z-index: 9;
+    z-index: 10;
 }
 
 #UI .player_info_container {
@@ -83,16 +84,19 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 7vw;
+    font-size: 5vw;
     color: goldenrod;
-    text-shadow: -5px -5px 0px black;
+    text-shadow: 5px 5px 0px black;
     pointer-events: none;
     opacity: 0;
-    transition: opacity .5s ease;
+    z-index: 12;
+    transition: opacity .25s ease, top 1s 2s ease;
 }
 
 #UI_level_up.active {
+    transition: opacity .25s ease, top 1s ease;
     opacity: 1;
+    top: 10%;
 }
 
 #change_map_curtain {
@@ -179,4 +183,89 @@
 
 
 
-#UI_city_menu {}
+/* SHOP MENU */
+
+.shop_menu {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    width: 100dvw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 9;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity .3s;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.shop_menu.open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.shop_menu_content {
+    display: flex;
+    padding: 5vw;
+    background-color: #3030ff;
+    border: 4px solid white;
+    box-shadow: 5px 5px 0px black;
+    font-size: 2.5vw;
+    color: #fff;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5vh;
+}
+
+.weapon_upgrade_row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3vw;
+}
+
+.current_weapon,
+.next_weapon {
+    width: 7vw
+}
+
+.cost_text {
+    position: relative;
+    margin-right: 4vw
+}
+
+.cost_text:after {
+    content: "";
+    position: absolute;
+    top: -75%;
+    width: 7vw;
+    height: 7vw;
+    background-image: url(assets/ui/coins.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.buttons_row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4vw;
+}
+
+.buttons_row>div {
+    cursor: pointer;
+    border: 2px solid #fff;
+    padding: 2vw;
+}
+
+.buttons_row>div.locked {
+    opacity: .4;
+    pointer-events: none;
+}

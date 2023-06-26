@@ -10,7 +10,6 @@
 
 	--parallax-shift: 0px;
 
-
 	--daynight-color: #aee7f8;
 	--night-intensity: 0;
 }
@@ -66,18 +65,17 @@ body {
 }
 
 #root {
-	height: 100vh;
-	height: 100dvh;
 	display: flex;
+	position: relative;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
 }
 
-#world_container {
+world-container {
 	width: var(--world-width);
 	position: relative;
-	cursor: url('assets/ui/cursor.png'), auto;
+	cursor: crosshair;
 }
 
 #sky {
@@ -245,23 +243,14 @@ enemy-avatar {
 	z-index: 9;
 	background-size: cover;
 	transition: top var(--enemy-move-speed) linear, left var(--enemy-move-speed) linear;
-	pointer-events: none;
 	z-index: 2;
 	text-align: center;
+	pointer-events: none;
+
+	/* cursor: url(/assets/ui/sword_1_cursor.png), auto */
 }
 
-enemy-avatar .hit_effect {
-	width: 75%;
-	height: 75%;
-	opacity: 0;
-	margin: 0 auto;
-	background-image: url(assets/effects/hit.png);
-	background-size: cover;
-}
 
-enemy-avatar.hit .hit_effect {
-	opacity: 1;
-}
 
 enemy-avatar.death {
 	z-index: 1;
@@ -413,6 +402,7 @@ player-avatar,
 enemy-avatar,
 map-cell,
 .background,
-#map_border_bottom {
+#map_border_bottom,
+#UI {
 	image-rendering: pixelated;
 }

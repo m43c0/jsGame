@@ -21,12 +21,12 @@ export default class GameManager {
     if (!GameManager.#instance) {
       GameManager.#instance = this;
 
-      this.variable = Constants.get("test");
       this.turnTime = Constants.get("turnTime");
       this.map = null;
       this.gameState = GameManager.GameState.STOP;
 
       // define custom HTML element
+      window.customElements.define("world-container", GameMap);
       window.customElements.define("enemy-avatar", Enemy);
       window.customElements.define("player-avatar", Player);
       window.customElements.define("map-cell", MapCell);
@@ -77,13 +77,15 @@ export default class GameManager {
 
       const levelUpBanner = document.createElement("div");
       levelUpBanner.id = "UI_level_up";
-      document.getElementById("root").appendChild(levelUpBanner);
+      levelUpBanner.innerHTML = "Level Up!";
+      this.rootElement = document.getElementById("root");
+      this.rootElement.appendChild(levelUpBanner);
 
       // city shopping menu
       this.shopMenu = new ShopMenu();
       this.ui.appendChild(this.shopMenu);
 
-      this.currentGold = 0;
+      this.currentGold = Constants.get("playerStartingGold");
       this.addGold(0); // set html of gold ui element to "0"
 
       // start main update cycle
@@ -140,7 +142,10 @@ export default class GameManager {
     playerExp,
     playerWeaponLevel
   ) {
-    this.map = null;
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
     // build map
     this.map = new GameMap(
       this.mapLevel,
@@ -150,6 +155,8 @@ export default class GameManager {
       playerExp,
       playerWeaponLevel
     );
+
+    this.rootElement.appendChild(this.map);
 
     this.updateUI(playerLevel, playerExp, playerWeaponLevel);
   }
@@ -237,7 +244,7 @@ export default class GameManager {
 
   playerEnterInCity(player) {
     this.gameState = GameManager.GameState.PAUSE;
-    this.shopMenu.openMenu(player, this.gold);
+    this.shopMenu.openMenu(player);
   }
 
   playerExitFromCity() {
@@ -267,13 +274,13 @@ export default class GameManager {
 
   async showLvUpBanner() {
     document.getElementById("UI_level_up").classList.add("active");
-    await aspetta(1000);
+    await this.aspetta(1000);
     document.getElementById("UI_level_up").classList.remove("active");
   }
 
-  changePlayerWeaponUI(weaponLv) {
+  updatePlayerWeaponUI(weaponLv) {
     this.currentWeaponUI.className = "";
-    this.currentWeaponUI.classList.add();
+    this.currentWeaponUI.classList.add("lv" + weaponLv);
   }
 
   aspetta(ms) {

@@ -11,20 +11,23 @@ export default class Constants {
   static #constantsDB = {
     map_columns: 20,
     map_rows: 5,
-    test: "_test_",
     turnTime: 400, // millis
 
     playerStartPositionX: 1,
-    playerStartPositionY: 3,
+    playerStartPositionY: 2,
 
     startingPlayerLevel: 1,
     basePlayerHp: 50,
-    basePlayerAtk: 100,
-    basePlayerExpToNextLevel: 30,
+    basePlayerAtk: 10,
+    basePlayerExpToNextLevel: 15,
+    playerStartingGold: 10,
 
-    baseEnemyHp: 10,
+    weaponCost: [0, 100, 200, 500, 1000],
+    maxWeaponLevel: 5,
+
+    baseEnemyHp: 20,
     baseEnemyAtk: 10,
-    baseEnemyExpDrop: 20,
+    baseEnemyExpDrop: 5,
     baseEnemyGoldDrop: 1,
 
     mapStartingLevel: 1,

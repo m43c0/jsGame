@@ -3,11 +3,9 @@ import GameManager from "./GameManager";
 import MapCell from "./MapCell";
 import Player from "./Player";
 import Enemy from "./Enemy";
-import GameEntity from "./GameEntity";
-import { Direction } from "./Direction";
 import Boss from "./Boss";
 
-export default class GameMap {
+export default class GameMap extends HTMLElement {
   #cells = [];
   constructor(
     currentMapLevel,
@@ -17,11 +15,11 @@ export default class GameMap {
     playerExp,
     playerWeaponLevel
   ) {
-    "use strict";
+    super();
+
     this.cols = Constants.get("map_columns");
     this.rows = Constants.get("map_rows");
     this.cell_size;
-    this.world_container = null;
     this.sky = null;
     this.map_container = null;
     this.enemies = [];
@@ -30,13 +28,8 @@ export default class GameMap {
 
     this.timeOfDay = currentTimeOfDay;
 
-    // MAP DOM elements
-    const rootElement = document.getElementById("root");
-    rootElement.innerHTML = ""; // clear everything
+    // MAP elements
 
-    // world container -> contiene il div del cielo, i 2 div che limitano il movimento sopra e sotto la mappa (montagne) e la mappa stessa
-    this.world_container = document.createElement("div");
-    this.world_container.id = "world_container";
     this.sky = document.createElement("div");
     this.sky.id = "sky";
 
@@ -69,15 +62,13 @@ export default class GameMap {
     this.map_container.id = "map_container";
     document.documentElement.style.setProperty("--map-columns", this.cols);
 
-    this.world_container.appendChild(this.sky);
-    this.world_container.appendChild(this.map_container);
-    this.world_container.appendChild(border_bottom);
+    this.appendChild(this.sky);
+    this.appendChild(this.map_container);
+    this.appendChild(border_bottom);
 
     const dayNightOverlay = document.createElement("div");
     dayNightOverlay.id = "daynight_overlay";
-    this.world_container.appendChild(dayNightOverlay);
-
-    rootElement.appendChild(this.world_container);
+    this.appendChild(dayNightOverlay);
 
     for (let y = 0; y < this.rows; y++)
       for (let x = 0; x < this.cols; x++) {
@@ -123,8 +114,8 @@ export default class GameMap {
     const isCity = mapLv === 3 || mapLv === 7 || mapLv === 13 || mapLv === 16;
 
     if (isCity) {
-      const cityX = GameMap.#randomIntFromInterval(8, this.cols - 5);
-      const cityY = GameMap.#randomIntFromInterval(2, this.rows - 5);
+      const cityX = parseInt(this.cols / 2);
+      const cityY = parseInt(this.rows / 2);
       const cellToPlaceCity = this.#getCellFromCoords(cityX, cityY);
       cellToPlaceCity.setupCity();
       return;
@@ -368,7 +359,6 @@ export default class GameMap {
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack1.png)";
 
-    //target.classList.add("hit");
     await this.aspetta(attackTime / 3);
 
     target.getHit(attackingEntity);
@@ -376,7 +366,6 @@ export default class GameMap {
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack2.png)";
     await this.aspetta(attackTime / 1.5);
-    //target.classList.remove("hit");
 
     attackingEntity.isAttacking = false;
     attackingEntity.style.backgroundImage = null;

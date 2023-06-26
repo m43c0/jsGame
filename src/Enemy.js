@@ -4,7 +4,6 @@ import GameManager from "./GameManager";
 export default class Enemy extends GameEntity {
   level;
   constructor(lv) {
-    ("use strict");
     super();
 
     // enemy stats
@@ -18,10 +17,6 @@ export default class Enemy extends GameEntity {
 
     const turnTime = Constants.get("turnTime") * 0.8;
     this.style.setProperty("--enemy-move-speed", turnTime + "ms");
-
-    // const hitEffect = document.createElement("div");
-    // hitEffect.classList.add("hit_effect");
-    // this.appendChild(hitEffect);
 
     this.classList.add("facing_left");
   }

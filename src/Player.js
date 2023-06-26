@@ -13,7 +13,7 @@ export default class Player extends GameEntity {
     this.level = currentLevel;
     this.maxHp = this.level * Constants.get("basePlayerHp");
     this.hp = currentHp;
-    (this.weaponLv = weaponLevel ? undefined : 1), weaponLevel;
+    this.weaponLv = weaponLevel == undefined ? 1 : weaponLevel;
 
     this.atk = Constants.get("basePlayerAtk") * this.level;
 
