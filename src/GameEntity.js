@@ -53,7 +53,7 @@ export default class GameEntity extends HTMLElement {
 
   die(killer) {
     this.healthBar.remove();
-    this.cell.currentEntity = null;
+    this.cell.setCurrentEntity(null);
     this.classList.add("death");
     this.signalDeath(killer);
   }

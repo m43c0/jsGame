@@ -9,6 +9,7 @@ export default class GameMap extends HTMLElement {
   #cells = [];
   constructor(
     currentMapLevel,
+    mapChangeIncrement,
     currentTimeOfDay,
     playerLevel,
     playerHp,
@@ -96,16 +97,20 @@ export default class GameMap extends HTMLElement {
       playerLevel,
       playerHp,
       playerExp,
-      playerWeaponLevel
+      playerWeaponLevel,
+      mapChangeIncrement < 0
     );
     this.map_container.appendChild(this.player);
 
+    let playerStartPositionX = Constants.get("playerStartPositionX");
+    const playerStartPositionY = Constants.get("playerStartPositionY");
+
+    // se sto tornando indietro posiziono il player a destra della mappa
+    if (mapChangeIncrement < 0) playerStartPositionX = this.cols - 2;
+
     this.#setGameEntityPositionInMap(
       this.player,
-      this.#getCellFromCoords(
-        Constants.get("playerStartPositionX"),
-        Constants.get("playerStartPositionY")
-      )
+      this.#getCellFromCoords(playerStartPositionX, playerStartPositionY)
     );
     this.#setParallaxShift(); // reset parallax (for successive maps)
 
@@ -139,8 +144,8 @@ export default class GameMap extends HTMLElement {
     let enemiesPlaced = totalEnemiesOnMap;
 
     while (enemiesPlaced > 0) {
-      const enemyPositionX = GameMap.#randomIntFromInterval(5, this.cols - 2);
-      const enemyPositionY = GameMap.#randomIntFromInterval(1, this.rows - 2);
+      const enemyPositionX = GameMap.#randomIntFromInterval(4, this.cols - 2);
+      const enemyPositionY = GameMap.#randomIntFromInterval(1, this.rows - 3);
 
       const cellToPlaceEnemy = this.#getCellFromCoords(
         enemyPositionX,
@@ -235,10 +240,10 @@ export default class GameMap extends HTMLElement {
 
   // set the position (left and top pixels) and the coordinates of the given gameEntity
   #setGameEntityPositionInMap(gameEntity, destinationCell) {
-    if (gameEntity.cell != null) gameEntity.cell.currentEntity = null;
+    if (gameEntity.cell != null) gameEntity.cell.setCurrentEntity(null);
     gameEntity.style.left = destinationCell.x * this.cell_size + "px";
     gameEntity.style.top = destinationCell.y * this.cell_size + "px";
-    destinationCell.currentEntity = gameEntity;
+    destinationCell.setCurrentEntity(gameEntity);
     gameEntity.cell = destinationCell;
   }
 
@@ -328,9 +333,12 @@ export default class GameMap extends HTMLElement {
 
     // fermo il Player se per caso si stava già muovendo
     this.#stopPlayerMovements();
-    if (cell.currentEntity instanceof Enemy && cell.currentEntity.hp > 0)
+    if (
+      cell.getCurrentEntity() instanceof Enemy &&
+      cell.getCurrentEntity().hp > 0
+    )
       if (GameMap.#areCellContiguous(this.player.cell, cell)) {
-        this.#attack(this.player, cell.currentEntity);
+        this.#attack(this.player, cell.getCurrentEntity());
         return;
       }
 
@@ -372,7 +380,7 @@ export default class GameMap extends HTMLElement {
   }
 
   static #isCellFree(cell) {
-    return cell.currentEntity == null;
+    return cell.getCurrentEntity() == null;
   }
 
   #getCellFromCoords(coordX, coordY) {

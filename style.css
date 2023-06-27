@@ -155,6 +155,26 @@ map-cell {
 	transition: box-shadow .25s ease;
 }
 
+#root.wLv1 map-cell.has_enemy:hover {
+	cursor: url(/assets/ui/sword_1_cursor.png), auto;
+}
+
+#root.wLv2 map-cell.has_enemy:hover {
+	cursor: url(/assets/ui/sword_2_cursor.png), auto;
+}
+
+#root.wLv3 map-cell.has_enemy:hover {
+	cursor: url(/assets/ui/sword_3_cursor.png), auto;
+}
+
+#root.wLv4 map-cell.has_enemy:hover {
+	cursor: url(/assets/ui/sword_4_cursor.png), auto;
+}
+
+#root.wLv5 map-cell.has_enemy:hover {
+	cursor: url(/assets/ui/sword_5_cursor.png), auto;
+}
+
 #root.debug map-cell {
 	border-top: 1px dashed #838383;
 	border-right: 1px dashed #838383
@@ -246,8 +266,6 @@ enemy-avatar {
 	z-index: 2;
 	text-align: center;
 	pointer-events: none;
-
-	/* cursor: url(/assets/ui/sword_1_cursor.png), auto */
 }
 
 

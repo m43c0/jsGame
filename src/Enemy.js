@@ -18,7 +18,7 @@ export default class Enemy extends GameEntity {
     const turnTime = Constants.get("turnTime") * 0.8;
     this.style.setProperty("--enemy-move-speed", turnTime + "ms");
 
-    this.classList.add("facing_left");
+    if (Math.random() > 0.4) this.classList.add("facing_left");
   }
 
   signalDeath(killer) {

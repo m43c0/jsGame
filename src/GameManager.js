@@ -111,6 +111,7 @@ export default class GameManager {
 
   #startGame() {
     this.#buildMap(
+      1,
       0,
       Constants.get("startingPlayerLevel"),
       Constants.get("basePlayerHp"),
@@ -136,6 +137,7 @@ export default class GameManager {
   }
 
   #buildMap(
+    change,
     currentTimeOfDay,
     playerLevel,
     playerHp,
@@ -149,6 +151,7 @@ export default class GameManager {
     // build map
     this.map = new GameMap(
       this.mapLevel,
+      change,
       currentTimeOfDay,
       playerLevel,
       playerHp,
@@ -204,6 +207,7 @@ export default class GameManager {
     // create new map
     this.mapLevel += change;
     this.#buildMap(
+      change,
       currentTimeOfDay,
       playerLevel,
       playerHp,
@@ -281,6 +285,7 @@ export default class GameManager {
   updatePlayerWeaponUI(weaponLv) {
     this.currentWeaponUI.className = "";
     this.currentWeaponUI.classList.add("lv" + weaponLv);
+    this.rootElement.classList.add("wLv" + weaponLv);
   }
 
   aspetta(ms) {

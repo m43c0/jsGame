@@ -6,7 +6,7 @@ import GameManager from "./GameManager";
 // ha un riferimento all'oggetto playerStat gestito dal GM in modod da non
 // dover sempre richiamare quest'ultimo durante i combattimenti
 export default class Player extends GameEntity {
-  constructor(currentLevel, currentHp, exp, weaponLevel) {
+  constructor(currentLevel, currentHp, exp, weaponLevel, facingLeft) {
     "use strict";
     super();
 
@@ -22,6 +22,8 @@ export default class Player extends GameEntity {
       Constants.get("basePlayerExpToNextLevel") * this.level;
 
     this.updateHealthBar();
+
+    if (facingLeft) this.classList.add("facing_left");
 
     // imposto la velocità di transazione del player (la velocità con la quale si muoverà tra le celle)
     // all'95% del tempo di un turno, così alla fine del turno il player sarà sicuramente in una casella, e non a metà tra due
