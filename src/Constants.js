@@ -9,8 +9,8 @@ export default class Constants {
 
   // private object used as DB for constants and accessed by the static 'get' method.
   static #constantsDB = {
-    map_columns: 16,
-    map_rows: 5,
+    map_columns: 20,
+    map_rows: 6,
     turnTime: 400, // millis
 
     playerStartPositionX: 1,

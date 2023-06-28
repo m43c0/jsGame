@@ -32,8 +32,6 @@ export default class GameManager {
       window.customElements.define("map-cell", MapCell);
       window.customElements.define("shop-menu", ShopMenu);
 
-      this.mapLevel = Constants.get("mapStartingLevel");
-
       this.startFrameTimer = performance.now();
       this.deltaTime = undefined; // millis
 
@@ -81,9 +79,6 @@ export default class GameManager {
       this.shopMenu = new ShopMenu();
       this.ui.appendChild(this.shopMenu);
 
-      this.currentGold = Constants.get("playerStartingGold");
-      this.addGold(0); // set html of gold ui element to "0"
-
       // start main update cycle
       this.#mainUpdate();
 
@@ -106,6 +101,11 @@ export default class GameManager {
   }
 
   #startGame() {
+    this.mapLevel = Constants.get("mapStartingLevel");
+
+    this.currentGold = Constants.get("playerStartingGold");
+    this.addGold(0); // set html of gold ui element to "0"
+
     this.#buildMap(1, 0, Constants.get("startingPlayerLevel"), undefined, 0, 1);
     this.gameState = GameManager.GameState.PLAY;
 

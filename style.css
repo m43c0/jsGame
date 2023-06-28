@@ -364,7 +364,7 @@ enemy-avatar .health_bar {
 	position: absolute;
 	opacity: 0;
 	top: 0px;
-	font-size: 10px;
+	font-size: clamp(12px, 1.2vw, 20px);
 	--display-time: .1s;
 	transition: top var(--display-time) ease;
 }
@@ -379,21 +379,6 @@ enemy-avatar.facing_left .damage_label {
 	top: calc(var(--cell-size)/-2)
 }
 
-
-/* @keyframes damageLabelAnim {
-	0% {
-		opacity: 1;
-		top: 0;
-	}
-
-	95% {
-		top: calc(var(--cell-size)/-2);
-	}
-
-	100% {
-		opacity: 0;
-	}
-} */
 
 player-avatar .damage_label {
 	color: #ed3838;
