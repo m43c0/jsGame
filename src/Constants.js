@@ -11,7 +11,7 @@ export default class Constants {
   static #constantsDB = {
     map_columns: 16,
     map_rows: 5,
-    turnTime: 500, // millis
+    turnTime: 400, // millis
 
     playerStartPositionX: 1,
     playerStartPositionY: 2,
