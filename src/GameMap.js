@@ -7,6 +7,7 @@ import Boss from "./Boss";
 
 export default class GameMap extends HTMLElement {
   #cells = [];
+  #playerReference;
   constructor(
     currentMapLevel,
     mapChangeIncrement,
@@ -93,14 +94,14 @@ export default class GameMap extends HTMLElement {
     this.setupSizes(false);
 
     // create player
-    this.player = new Player(
+    this.#playerReference = new Player(
       playerLevel,
       playerHp,
       playerExp,
       playerWeaponLevel,
       mapChangeIncrement < 0
     );
-    this.map_container.appendChild(this.player);
+    this.map_container.appendChild(this.#playerReference);
 
     GameManager.getInstance().updatePlayerWeaponUI(playerWeaponLevel);
 
@@ -111,7 +112,7 @@ export default class GameMap extends HTMLElement {
     if (mapChangeIncrement < 0) playerStartPositionX = this.cols - 2;
 
     this.#setGameEntityPositionInMap(
-      this.player,
+      this.#playerReference,
       this.#getCellFromCoords(playerStartPositionX, playerStartPositionY)
     );
     this.#setParallaxShift(); // reset parallax (for successive maps)
@@ -183,8 +184,10 @@ export default class GameMap extends HTMLElement {
     );
 
     if (repositionEntitiesOnMap) {
-      this.player.style.left = this.player.cell.x * this.cell_size + "px";
-      this.player.style.top = this.player.cell.y * this.cell_size + "px";
+      this.#playerReference.style.left =
+        this.#playerReference.cell.x * this.cell_size + "px";
+      this.#playerReference.style.top =
+        this.#playerReference.cell.y * this.cell_size + "px";
       this.enemies.forEach((e) => {
         e.style.left = e.cell.x * this.cell_size + "px";
         e.style.top = e.cell.y * this.cell_size + "px";
@@ -197,7 +200,7 @@ export default class GameMap extends HTMLElement {
   }
 
   turnUpdate() {
-    if (this.player.hasTarget() && !this.player.isAttacking)
+    if (this.#playerReference.hasTarget() && !this.#playerReference.isAttacking)
       this.#movePlayerAvatar();
 
     this.enemies.forEach((e) => this.#enemyUpdate(e));
@@ -205,14 +208,14 @@ export default class GameMap extends HTMLElement {
 
   #enemyUpdate(enemy) {
     if (enemy.hp <= 0) return;
-    if (GameMap.#areCellContiguous(enemy.cell, this.player.cell))
-      this.#attack(enemy, this.player);
+    if (GameMap.#areCellContiguous(enemy.cell, this.#playerReference.cell))
+      this.#attack(enemy, this.#playerReference);
 
     if (
-      Math.abs(enemy.cell.x - this.player.cell.x) < 4 &&
-      Math.abs(enemy.cell.y - this.player.cell.y) < 4
+      Math.abs(enemy.cell.x - this.#playerReference.cell.x) < 4 &&
+      Math.abs(enemy.cell.y - this.#playerReference.cell.y) < 4
     ) {
-      enemy.setCurrentTargetCell(this.player.cell);
+      enemy.setCurrentTargetCell(this.#playerReference.cell);
       this.#moveEnemyAvatar(enemy);
     }
   }
@@ -251,8 +254,11 @@ export default class GameMap extends HTMLElement {
 
   #movePlayerAvatar() {
     // imposto direzione
-    this.player.setDirection(this.player.getCurrentTargetCell());
-    const nextCellCoords = this.player.getNextCellCoordsInCurrentDirection();
+    this.#playerReference.setDirection(
+      this.#playerReference.getCurrentTargetCell()
+    );
+    const nextCellCoords =
+      this.#playerReference.getNextCellCoordsInCurrentDirection();
     const nextCell = this.#getCellFromCoords(
       nextCellCoords.x,
       nextCellCoords.y
@@ -261,7 +267,7 @@ export default class GameMap extends HTMLElement {
     // check se mi posso muovere in quella direzione
     if (GameMap.#isCellFree(nextCell)) {
       // si -> mi muovo in quella direzione
-      this.#setGameEntityPositionInMap(this.player, nextCell);
+      this.#setGameEntityPositionInMap(this.#playerReference, nextCell);
       this.#setParallaxShift();
       this.#checkIfPlayerArrivedAtDestination();
       this.#checkIfPlayerArrivedInCity();
@@ -292,40 +298,40 @@ export default class GameMap extends HTMLElement {
   #setParallaxShift() {
     document.documentElement.style.setProperty(
       "--parallax-shift",
-      this.player.cell.x * -1 + "px"
+      this.#playerReference.cell.x * -1 + "px"
     );
   }
 
   #checkIfPlayerArrivedAtDestination() {
     // se sono sull'ultima colonna -> prossima mappa
     let nextMap = 0;
-    if (this.player.cell.x >= this.cols - 1) nextMap = 1;
+    if (this.#playerReference.cell.x >= this.cols - 1) nextMap = 1;
 
-    if (this.player.cell.x <= 0 && this.mapLevel > 1) nextMap = -1;
+    if (this.#playerReference.cell.x <= 0 && this.mapLevel > 1) nextMap = -1;
 
     if (nextMap != 0) {
       GameManager.getInstance().changeMap(
         nextMap,
         this.currentTimeOfDay,
-        this.player.level,
-        this.player.hp,
-        this.player.currentExp,
-        this.player.weaponLv
+        this.#playerReference.level,
+        this.#playerReference.hp,
+        this.#playerReference.currentExp,
+        this.#playerReference.weaponLv
       );
       return;
     }
 
-    if (this.player.isAtTargetCoords()) {
+    if (this.#playerReference.isAtTargetCoords()) {
       // arrivato a destinazione
       this.#stopPlayerMovements();
     }
   }
   #checkIfPlayerArrivedInCity() {
-    if (this.player.cell.isCity) {
+    if (this.#playerReference.cell.isCity) {
       this.#stopPlayerMovements();
-      this.player.recoverAllHp();
+      this.#playerReference.recoverAllHp();
 
-      GameManager.getInstance().playerEnterInCity(this.player);
+      GameManager.getInstance().playerEnterInCity(this.#playerReference);
     }
   }
 
@@ -339,19 +345,19 @@ export default class GameMap extends HTMLElement {
       cell.getCurrentEntity() instanceof Enemy &&
       cell.getCurrentEntity().hp > 0
     )
-      if (GameMap.#areCellContiguous(this.player.cell, cell)) {
-        this.#attack(this.player, cell.getCurrentEntity());
+      if (GameMap.#areCellContiguous(this.#playerReference.cell, cell)) {
+        this.#attack(this.#playerReference, cell.getCurrentEntity());
         return;
       }
 
     cell.classList.add("current_target");
-    this.player.setCurrentTargetCell(cell);
+    this.#playerReference.setCurrentTargetCell(cell);
   }
 
   #stopPlayerMovements() {
     const currentTargetCell = document.querySelector("map-cell.current_target");
     if (currentTargetCell) currentTargetCell.classList.remove("current_target");
-    this.player.resetCurrentTargetCell();
+    this.#playerReference.resetCurrentTargetCell();
   }
 
   async #attack(attackingEntity, target) {

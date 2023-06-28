@@ -151,7 +151,7 @@ export default class GameManager {
 
     this.rootElement.appendChild(this.map);
 
-    this.updateUI();
+    this.updateUI(playerLevel, playerExp);
   }
 
   #mainUpdate() {
@@ -250,11 +250,11 @@ export default class GameManager {
     this.gameState = GameManager.GameState.PLAY;
   }
 
-  async updateUI() {
+  async updateUI(playerLevel, playerExp) {
     this.currentMapUI.innerHTML = "Map:" + this.mapLevel;
-    this.playerLevelUI.innerHTML = "Lv" + this.map.player.level;
+    this.playerLevelUI.innerHTML = "Lv" + playerLevel;
     const expBarFill = Math.floor(
-      (this.map.player.currentExp * 100) / this.map.player.expToNextLevel
+      (playerExp * 100) / Player.getExpNeededToLevelUp(playerLevel)
     );
 
     // if level up -> reach 100% before going back to zero

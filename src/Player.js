@@ -6,7 +6,7 @@ import GameManager from "./GameManager";
 // ha un riferimento all'oggetto playerStat gestito dal GM in modod da non
 // dover sempre richiamare quest'ultimo durante i combattimenti
 export default class Player extends GameEntity {
-  static #isDebug = true;
+  static #isDebug = false;
 
   constructor(currentLevel, currentHp, exp, weaponLevel, facingLeft) {
     "use strict";
@@ -47,7 +47,7 @@ export default class Player extends GameEntity {
     } else this.currentExp = totalExp;
 
     this.#debugPrintStats();
-    GameManager.getInstance().updateUI();
+    GameManager.getInstance().updateUI(this.level, this.currentExp);
   }
 
   levelUp() {
@@ -69,8 +69,7 @@ export default class Player extends GameEntity {
 
     this.atk = Constants.get("basePlayerAtk") * this.level;
 
-    this.expToNextLevel =
-      Math.pow(this.level, 2) * Constants.get("basePlayerExpToNextLevel");
+    this.expToNextLevel = Player.getExpNeededToLevelUp(this.level);
 
     this.currentExp = 0;
   }
@@ -86,7 +85,7 @@ export default class Player extends GameEntity {
     console.log("expToNextLevel: ", this.expToNextLevel);
   }
 
-  omar() {
-    GameManager.getInstance().finish();
+  static getExpNeededToLevelUp(lv) {
+    return Math.pow(lv, 2) * Constants.get("basePlayerExpToNextLevel");
   }
 }
