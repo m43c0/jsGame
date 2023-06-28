@@ -102,6 +102,8 @@ export default class GameMap extends HTMLElement {
     );
     this.map_container.appendChild(this.player);
 
+    GameManager.getInstance().updatePlayerWeaponUI(playerWeaponLevel);
+
     let playerStartPositionX = Constants.get("playerStartPositionX");
     const playerStartPositionY = Constants.get("playerStartPositionY");
 
@@ -170,7 +172,7 @@ export default class GameMap extends HTMLElement {
     // cell size must be an integer, and world container must be an integer multiple of cell size
     this.cell_size = parseInt(window.innerWidth / this.cols);
     const worlContainerWidth = this.cell_size * this.cols;
-    console.log("resize map: ", window.innerWidth, this.cols, this.cell_size);
+    // console.log("resize map: ", window.innerWidth, this.cols, this.cell_size);
     document.documentElement.style.setProperty(
       "--world-width",
       worlContainerWidth + "px"
@@ -358,7 +360,8 @@ export default class GameMap extends HTMLElement {
     attackingEntity.isAttacking = true;
     attackingEntity.setDirection(target.cell);
 
-    const attackTime = GameManager.getInstance().turnTime * 2;
+    // attack takes 3 turns
+    const turnTime = GameManager.getInstance().turnTime;
 
     let entityFolderName = "player";
     if (attackingEntity instanceof Enemy)
@@ -367,13 +370,17 @@ export default class GameMap extends HTMLElement {
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack1.png)";
 
-    await this.aspetta(attackTime / 3);
+    await this.aspetta(turnTime);
 
     target.getHit(attackingEntity);
 
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack2.png)";
-    await this.aspetta(attackTime / 1.5);
+    await this.aspetta(turnTime);
+
+    attackingEntity.style.backgroundImage =
+      "url(assets/characters/" + entityFolderName + "/attack3.png)";
+    await this.aspetta(turnTime);
 
     attackingEntity.isAttacking = false;
     attackingEntity.style.backgroundImage = null;

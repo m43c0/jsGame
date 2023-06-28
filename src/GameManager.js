@@ -38,7 +38,7 @@ export default class GameManager {
       this.deltaTime = undefined; // millis
 
       this.backGroundMusic = new Audio("/assets/music/main.mp3");
-      this.backGroundMusic.volume = 0.1;
+      this.backGroundMusic.volume = 0.05;
       this.backGroundMusic.loop = true;
 
       // UI
@@ -110,13 +110,7 @@ export default class GameManager {
   }
 
   #startGame() {
-    this.#buildMap(
-      1,
-      0,
-      Constants.get("startingPlayerLevel"),
-      Constants.get("basePlayerHp"),
-      0
-    );
+    this.#buildMap(1, 0, Constants.get("startingPlayerLevel"), undefined, 0, 1);
     this.gameState = GameManager.GameState.PLAY;
 
     if (GameManager.#isDebug) {
@@ -161,7 +155,7 @@ export default class GameManager {
 
     this.rootElement.appendChild(this.map);
 
-    this.updateUI(playerLevel, playerExp, playerWeaponLevel);
+    this.updateUI();
   }
 
   #mainUpdate() {
@@ -255,11 +249,11 @@ export default class GameManager {
     this.gameState = GameManager.GameState.PLAY;
   }
 
-  async updateUI(lv, exp) {
+  async updateUI() {
     this.currentMapUI.innerHTML = "Map:" + this.mapLevel;
-    this.playerLevelUI.innerHTML = "Lv" + lv;
+    this.playerLevelUI.innerHTML = "Lv" + this.map.player.level;
     const expBarFill = Math.floor(
-      (exp * 100) / (Constants.get("basePlayerExpToNextLevel") * lv)
+      (this.map.player.currentExp * 100) / this.map.player.expToNextLevel
     );
 
     // if level up -> reach 100% before going back to zero

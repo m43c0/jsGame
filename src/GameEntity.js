@@ -7,7 +7,8 @@ export default class GameEntity extends HTMLElement {
   cell = null;
 
   level;
-  maxHp;
+  currentExp;
+  #maxHp;
   hp;
   atk;
   weaponLv;
@@ -30,7 +31,9 @@ export default class GameEntity extends HTMLElement {
   }
 
   getHit(attackingEntity) {
-    const attackPower = attackingEntity.atk * attackingEntity.weaponLv;
+    const weaponDamageBonus =
+      Constants.get("weaponDamageBonus")[this.weaponLv - 1];
+    const attackPower = attackingEntity.atk + weaponDamageBonus;
     this.hp = Math.max(0, this.hp - attackPower);
 
     this.damageLabel.innerHTML = attackPower;
@@ -47,8 +50,16 @@ export default class GameEntity extends HTMLElement {
   updateHealthBar() {
     this.healthBar.style.setProperty(
       "--hp-percentage",
-      (this.hp * 100) / this.maxHp + "%"
+      (this.hp * 100) / this.#maxHp + "%"
     );
+  }
+
+  getMaxHp() {
+    return this.#maxHp;
+  }
+
+  setMaxHp(max_hp) {
+    this.#maxHp = max_hp;
   }
 
   die(killer) {

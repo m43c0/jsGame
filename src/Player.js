@@ -6,28 +6,27 @@ import GameManager from "./GameManager";
 // ha un riferimento all'oggetto playerStat gestito dal GM in modod da non
 // dover sempre richiamare quest'ultimo durante i combattimenti
 export default class Player extends GameEntity {
+  static #isDebug = true;
+
   constructor(currentLevel, currentHp, exp, weaponLevel, facingLeft) {
     "use strict";
     super();
 
     this.level = currentLevel;
-    this.maxHp = this.level * Constants.get("basePlayerHp");
-    this.hp = currentHp;
-    this.weaponLv = weaponLevel == undefined ? 1 : weaponLevel;
+    this.#setupPlayerStats();
 
-    this.atk = Constants.get("basePlayerAtk") * this.level;
-
-    this.currentExp = exp;
-    this.expToNextLevel =
-      Constants.get("basePlayerExpToNextLevel") * this.level;
+    // set stat che mi porto dietro da mappa precedente
+    if (exp) this.currentExp = exp;
+    this.weaponLv = weaponLevel;
+    if (currentHp) this.hp = currentHp;
 
     this.updateHealthBar();
 
     if (facingLeft) this.classList.add("facing_left");
 
-    // imposto la velocità di transazione del player (la velocità con la quale si muoverà tra le celle)
-    // all'95% del tempo di un turno, così alla fine del turno il player sarà sicuramente in una casella, e non a metà tra due
-    const turnTime = Constants.get("turnTime") * 0.95;
+    this.#debugPrintStats();
+
+    const turnTime = Constants.get("turnTime");
     this.style.setProperty("--player-move-speed", turnTime + "ms");
   }
 
@@ -35,7 +34,7 @@ export default class Player extends GameEntity {
     GameManager.getInstance().gameOver();
   }
   recoverAllHp() {
-    this.hp = this.maxHp;
+    this.hp = this.getMaxHp();
     this.updateHealthBar();
   }
 
@@ -47,23 +46,47 @@ export default class Player extends GameEntity {
       this.currentExp = expLeftAfterLvUp;
     } else this.currentExp = totalExp;
 
-    GameManager.getInstance().updateUI(
-      this.level,
-      this.currentExp,
-      this.weaponLv
-    );
+    this.#debugPrintStats();
+    GameManager.getInstance().updateUI();
   }
 
   levelUp() {
     // YAY
     this.level++;
     GameManager.getInstance().showLvUpBanner();
-    this.maxHp = this.level * Constants.get("basePlayerHp");
-    this.hp = this.maxHp;
-    this.atk = Constants.get("basePlayerAtk") * this.level;
-    this.exp = 0;
+    this.#setupPlayerStats();
     this.updateHealthBar();
+  }
+
+  #setupPlayerStats() {
+    const maxHealth =
+      Constants.get("basePlayerHp") +
+      (Constants.get("basePlayerHp") / 10) *
+        parseInt(Math.pow(this.level, 2.5));
+
+    this.setMaxHp(maxHealth);
+    this.hp = maxHealth;
+
+    this.atk = Constants.get("basePlayerAtk") * this.level;
+
     this.expToNextLevel =
-      Constants.get("basePlayerExpToNextLevel") * this.level;
+      Math.pow(this.level, 2) * Constants.get("basePlayerExpToNextLevel");
+
+    this.currentExp = 0;
+  }
+
+  debugAddGold(g) {
+    GameManager.getInstance().addGold(g);
+  }
+
+  #debugPrintStats() {
+    if (!Player.#isDebug) return;
+
+    console.log("maxHP: ", this.getMaxHp());
+    console.log("HP: ", this.hp);
+    console.log("ATK: ", this.atk);
+    console.log("weapon: ", this.weaponLv);
+    console.log("exp: ", this.currentExp);
+    console.log("expToNextLevel: ", this.expToNextLevel);
   }
 }

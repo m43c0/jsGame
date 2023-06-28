@@ -9,9 +9,9 @@ export default class Constants {
 
   // private object used as DB for constants and accessed by the static 'get' method.
   static #constantsDB = {
-    map_columns: 20,
+    map_columns: 16,
     map_rows: 5,
-    turnTime: 400, // millis
+    turnTime: 500, // millis
 
     playerStartPositionX: 1,
     playerStartPositionY: 2,
@@ -19,16 +19,17 @@ export default class Constants {
     startingPlayerLevel: 1,
     basePlayerHp: 50,
     basePlayerAtk: 10,
-    basePlayerExpToNextLevel: 15,
+    basePlayerExpToNextLevel: 20,
     playerStartingGold: 10,
 
     weaponCost: [0, 100, 200, 500, 1000],
+    weaponDamageBonus: [0, 25, 50, 100, 200],
     maxWeaponLevel: 5,
 
-    baseEnemyHp: 20,
-    baseEnemyAtk: 10,
+    enemyHp: [20, 50, 150, 300],
+    enemyAtk: [10, 25, 60, 150],
     baseEnemyExpDrop: 5,
-    baseEnemyGoldDrop: 1,
+    baseEnemyGoldDrop: 3,
 
     mapStartingLevel: 1,
   };
