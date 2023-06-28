@@ -360,8 +360,9 @@ export default class GameMap extends HTMLElement {
     attackingEntity.isAttacking = true;
     attackingEntity.setDirection(target.cell);
 
-    // attack takes 3 turns
-    const turnTime = GameManager.getInstance().turnTime;
+    // attack takes 2 turns
+    const attackTime = Constants.get("turnTime") * 2;
+    const attackWaitTime = parseInt(attackTime / 3);
 
     let entityFolderName = "player";
     if (attackingEntity instanceof Enemy)
@@ -370,18 +371,31 @@ export default class GameMap extends HTMLElement {
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack1.png)";
 
-    await this.aspetta(turnTime);
+    await this.aspetta(attackWaitTime);
+    // controllo se attaccante ancora vivo dopo attesa: se morto -> termino attacco
+    if (attackingEntity.hp <= 0) {
+      this.#endAttack(attackingEntity);
+      return;
+    }
 
     target.getHit(attackingEntity);
-
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack2.png)";
-    await this.aspetta(turnTime);
+    await this.aspetta(attackWaitTime);
+    // controllo se attaccante ancora vivo dopo attesa: se morto -> termino attacco
+    if (attackingEntity.hp <= 0) {
+      this.#endAttack(attackingEntity);
+      return;
+    }
 
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack3.png)";
-    await this.aspetta(turnTime);
+    await this.aspetta(attackWaitTime);
 
+    this.#endAttack(attackingEntity);
+  }
+
+  #endAttack(attackingEntity) {
     attackingEntity.isAttacking = false;
     attackingEntity.style.backgroundImage = null;
   }
