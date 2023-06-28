@@ -27,7 +27,7 @@ export default class Constants {
     maxWeaponLevel: 5,
 
     enemyHp: [20, 50, 150, 300],
-    enemyAtk: [10, 25, 60, 150],
+    enemyAtk: [10, 20, 50, 120],
     baseEnemyExpDrop: 5,
     baseEnemyGoldDrop: 3,
 

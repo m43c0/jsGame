@@ -119,7 +119,7 @@ export default class GameMap extends HTMLElement {
 
     // enemies
     const mapLv = this.mapLevel;
-    const isCity = mapLv === 3 || mapLv === 7 || mapLv === 13 || mapLv === 16;
+    const isCity = mapLv === 3 || mapLv === 7 || mapLv === 12 || mapLv === 16;
 
     if (isCity) {
       const cityX = parseInt(this.cols / 2);

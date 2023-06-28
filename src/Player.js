@@ -86,6 +86,6 @@ export default class Player extends GameEntity {
   }
 
   static getExpNeededToLevelUp(lv) {
-    return Math.pow(lv, 2) * Constants.get("basePlayerExpToNextLevel");
+    return Math.pow(lv, 1.6) * Constants.get("basePlayerExpToNextLevel");
   }
 }
