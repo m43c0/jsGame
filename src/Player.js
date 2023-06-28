@@ -75,10 +75,6 @@ export default class Player extends GameEntity {
     this.currentExp = 0;
   }
 
-  debugAddGold(g) {
-    GameManager.getInstance().addGold(g);
-  }
-
   #debugPrintStats() {
     if (!Player.#isDebug) return;
 
@@ -88,5 +84,9 @@ export default class Player extends GameEntity {
     console.log("weapon: ", this.weaponLv);
     console.log("exp: ", this.currentExp);
     console.log("expToNextLevel: ", this.expToNextLevel);
+  }
+
+  omar() {
+    GameManager.getInstance().finish();
   }
 }

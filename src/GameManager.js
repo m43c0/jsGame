@@ -37,10 +37,6 @@ export default class GameManager {
       this.startFrameTimer = performance.now();
       this.deltaTime = undefined; // millis
 
-      this.backGroundMusic = new Audio("/assets/music/main.mp3");
-      this.backGroundMusic.volume = 0.05;
-      this.backGroundMusic.loop = true;
-
       // UI
       this.ui = document.getElementById("UI");
 
@@ -119,7 +115,7 @@ export default class GameManager {
     }
     document.querySelector("#overlay").classList.add("isPlaying");
 
-    this.backGroundMusic.play();
+    this.#playMusic("main");
 
     this.backGroundMusic.addEventListener("timeupdate", function () {
       const buffer = 0.44;
@@ -229,6 +225,7 @@ export default class GameManager {
     const overlay = document.querySelector("#overlay");
     overlay.querySelector(".overlay_text").innerHTML = "Game Over";
     overlay.querySelector(".play_button").innerHTML = "Retry";
+    this.#playMusic("game-over");
     overlay.classList.remove("isPlaying");
   }
 
@@ -236,7 +233,11 @@ export default class GameManager {
     this.gameState = GameManager.GameState.STOP;
     const overlay = document.querySelector("#overlay");
     overlay.querySelector(".overlay_text").innerHTML = "You beat the game";
-    overlay.querySelector(".play_button").innerHTML = "thank you for playing";
+    const thanks = document.createElement("div");
+    thanks.innerHTML = "thank you for playing";
+    document.querySelector("#overlay").appendChild(thanks);
+    overlay.querySelector(".play_button").remove();
+    this.#playMusic("end");
     overlay.classList.remove("isPlaying");
   }
 
@@ -280,6 +281,14 @@ export default class GameManager {
     this.currentWeaponUI.className = "";
     this.currentWeaponUI.classList.add("lv" + weaponLv);
     this.rootElement.classList.add("wLv" + weaponLv);
+  }
+
+  #playMusic(song) {
+    if (this.backGroundMusic) this.backGroundMusic.pause();
+    this.backGroundMusic = new Audio("/assets/music/" + song + ".ogg");
+    this.backGroundMusic.volume = 0.05;
+    this.backGroundMusic.loop = true;
+    this.backGroundMusic.play();
   }
 
   aspetta(ms) {
