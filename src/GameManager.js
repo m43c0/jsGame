@@ -5,6 +5,7 @@ import GameMap from "./GameMap";
 import Player from "./Player";
 import Enemy from "./Enemy";
 import ShopMenu from "./ShopMenu";
+import Boss from "./Boss";
 
 export default class GameManager {
   static #instance;
@@ -28,6 +29,7 @@ export default class GameManager {
       // define custom HTML element
       window.customElements.define("world-container", GameMap);
       window.customElements.define("enemy-avatar", Enemy);
+      window.customElements.define("boss-avatar", Boss);
       window.customElements.define("player-avatar", Player);
       window.customElements.define("map-cell", MapCell);
       window.customElements.define("shop-menu", ShopMenu);
@@ -117,13 +119,7 @@ export default class GameManager {
     }
 
     const saveObject = JSON.parse(save);
-    this.#startGame(
-      saveObject.mapLv,
-      saveObject.playerLevel,
-      saveObject.gold,
-      saveObject.playerCurrentExp,
-      saveObject.weaponLv
-    );
+    this.#startGame(8, 10, 1000, 0, 3);
   }
 
   #startGame(_mapLv, _pLv, _pGold, _pExp, _wLv) {
@@ -301,7 +297,7 @@ export default class GameManager {
     );
 
     // if level up -> reach 100% before going back to zero
-    if (parseInt(this.playerExpUI.style.width, 10) > expBarFill) {
+    if (Math.floor(this.playerExpUI.style.width, 10) > expBarFill) {
       this.playerExpUI.style.width = "100%";
       setTimeout(() => {
         this.playerExpUI.style.width = expBarFill + "%";

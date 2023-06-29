@@ -62,7 +62,7 @@ export default class Player extends GameEntity {
     const maxHealth =
       Constants.get("basePlayerHp") +
       (Constants.get("basePlayerHp") / 10) *
-        parseInt(Math.pow(this.level, 2.5));
+        Math.floor(Math.pow(this.level, 2.5));
 
     this.setMaxHp(maxHealth);
     this.hp = maxHealth;

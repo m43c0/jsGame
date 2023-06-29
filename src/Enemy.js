@@ -2,10 +2,8 @@ import Constants from "./Constants";
 import GameEntity from "./GameEntity";
 import GameManager from "./GameManager";
 export default class Enemy extends GameEntity {
-  level;
   constructor(lv) {
     super();
-
     // enemy stats
     this.level = lv;
     this.classList.add("lv" + lv);
@@ -26,7 +24,7 @@ export default class Enemy extends GameEntity {
 
   signalDeath(killer) {
     killer.addExp(
-      Constants.get("baseEnemyExpDrop") * parseInt(Math.pow(this.level, 2.5))
+      Constants.get("baseEnemyExpDrop") * Math.floor(Math.pow(this.level, 2.5))
     );
     const minGoldDropped = Constants.get("baseEnemyGoldDrop") * this.level;
     const maxGoldDropped = minGoldDropped * 2;

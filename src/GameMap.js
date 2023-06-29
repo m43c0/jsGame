@@ -122,16 +122,16 @@ export default class GameMap extends HTMLElement {
     const isCity = mapLv === 3 || mapLv === 7 || mapLv === 12 || mapLv === 16;
 
     if (isCity) {
-      const cityX = parseInt(this.cols / 2);
-      const cityY = parseInt(this.rows / 2);
+      const cityX = Math.floor(this.cols / 2);
+      const cityY = Math.floor(this.rows / 2);
       const cellToPlaceCity = this.#getCellFromCoords(cityX, cityY);
       cellToPlaceCity.setupCity();
       return;
     }
     if (mapLv === 17) {
-      const bossX = GameMap.#randomIntFromInterval(8, this.cols - 5);
-      const bossY = GameMap.#randomIntFromInterval(2, this.rows - 5);
-      const cellToPlaceBoss = this.#getCellFromCoords(cityX, cityY);
+      const bossX = Math.floor(this.cols / 2);
+      const bossY = Math.floor(this.rows / 2);
+      const cellToPlaceBoss = this.#getCellFromCoords(bossX, bossY);
       const boss = new Boss();
       this.enemies.push(boss);
       this.map_container.appendChild(boss);
@@ -142,13 +142,13 @@ export default class GameMap extends HTMLElement {
     const totalEnemiesOnMap = Math.floor((mapLv + 2) / 2);
 
     const enemiesMinLevel = Math.floor(mapLv / 5 + 1);
-    const enemiesMaxLevel = Math.floor(mapLv / 3 + 1);
+    const enemiesMaxLevel = Math.floor(mapLv / 4 + 1);
 
-    let enemiesPlaced = totalEnemiesOnMap;
+    let enemiesToPlace = totalEnemiesOnMap;
 
-    while (enemiesPlaced > 0) {
-      const enemyPositionX = GameMap.#randomIntFromInterval(4, this.cols - 2);
-      const enemyPositionY = GameMap.#randomIntFromInterval(1, this.rows - 3);
+    while (enemiesToPlace > 0) {
+      const enemyPositionX = GameMap.#randomIntFromInterval(4, this.cols - 4);
+      const enemyPositionY = GameMap.#randomIntFromInterval(1, this.rows - 2);
 
       const cellToPlaceEnemy = this.#getCellFromCoords(
         enemyPositionX,
@@ -158,20 +158,20 @@ export default class GameMap extends HTMLElement {
       if (!GameMap.#isCellFree(cellToPlaceEnemy)) continue;
 
       let enemyLevel = 0;
-      if (enemiesPlaced < totalEnemiesOnMap / 2) enemyLevel = enemiesMinLevel;
-      else enemyLevel = enemiesMaxLevel;
+      if (enemiesToPlace < totalEnemiesOnMap / 2) enemyLevel = enemiesMaxLevel;
+      else enemyLevel = enemiesMinLevel;
       const enemy = new Enemy(enemyLevel);
       this.enemies.push(enemy);
       this.map_container.appendChild(enemy);
       this.#setGameEntityPositionInMap(enemy, cellToPlaceEnemy);
-      enemiesPlaced--;
+      enemiesToPlace--;
     }
   }
 
   setupSizes(repositionEntitiesOnMap) {
     // to avoid gaps betweens elements caused by float errors,
     // cell size must be an integer, and world container must be an integer multiple of cell size
-    this.cell_size = parseInt(window.innerWidth / this.cols);
+    this.cell_size = Math.floor(window.innerWidth / this.cols);
     const worlContainerWidth = this.cell_size * this.cols;
     // console.log("resize map: ", window.innerWidth, this.cols, this.cell_size);
     document.documentElement.style.setProperty(
@@ -368,11 +368,12 @@ export default class GameMap extends HTMLElement {
 
     // attack takes 2 turns
     const attackTime = Constants.get("turnTime") * 2;
-    const attackWaitTime = parseInt(attackTime / 3);
+    const attackWaitTime = Math.floor(attackTime / 3);
 
     let entityFolderName = "player";
     if (attackingEntity instanceof Enemy)
       entityFolderName = "eLv" + attackingEntity.level;
+    if (attackingEntity instanceof Boss) entityFolderName = "boss";
 
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack1.png)";

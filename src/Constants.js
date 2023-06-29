@@ -17,7 +17,7 @@ export default class Constants {
     playerStartPositionY: 2,
 
     startingPlayerLevel: 1,
-    basePlayerHp: 60, // was 50
+    basePlayerHp: 70, // was 50
     basePlayerAtk: 10,
     basePlayerExpToNextLevel: 20,
     playerStartingGold: 10,

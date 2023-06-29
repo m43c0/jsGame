@@ -285,7 +285,8 @@ player-avatar.death {
 	background-image: url(/assets/characters/player/death.png);
 }
 
-enemy-avatar {
+enemy-avatar,
+boss-avatar {
 	--enemy-move-speed: .1s;
 	width: var(--cell-size);
 	height: var(--cell-size);
@@ -301,7 +302,8 @@ enemy-avatar {
 
 
 
-enemy-avatar.death {
+enemy-avatar.death,
+boss-avatar.death {
 	z-index: 1;
 }
 
@@ -359,15 +361,15 @@ enemy-avatar.attack {
 }
 
 
-enemy-avatar.boss {
+boss-avatar {
 	background-image: url(/assets/characters/boss/idle.png);
 }
 
-enemy-avatar.walk.boss {
+boss-avatar.walk {
 	background-image: url(/assets/characters/boss/walk.png);
 }
 
-enemy-avatar.death.boss {
+boss-avatar.death {
 	background-image: url(/assets/characters/boss/death.png);
 }
 
@@ -386,7 +388,8 @@ player-avatar .health_bar {
 	background: #38edc0;
 }
 
-enemy-avatar .health_bar {
+enemy-avatar .health_bar,
+boss-avatar .health_bar {
 	background: #ed3838;
 }
 
@@ -401,7 +404,8 @@ enemy-avatar .health_bar {
 }
 
 player-avatar.facing_left .damage_label,
-enemy-avatar.facing_left .damage_label {
+enemy-avatar.facing_left .damage_label,
+boss-avatar.facing_left .damage_label {
 	transform: scaleX(-1);
 }
 
@@ -415,18 +419,21 @@ player-avatar .damage_label {
 	color: #ed3838;
 }
 
-enemy-avatar .damage_label {
+enemy-avatar .damage_label,
+boss-avatar .damage_label {
 	color: #ffffff;
 }
 
 
 player-avatar,
-enemy-avatar {
+enemy-avatar,
+boss-avatar {
 	transform: scaleX(1.2) scaleY(1.2)
 }
 
 player-avatar.facing_left,
-enemy-avatar.facing_left {
+enemy-avatar.facing_left,
+boss-avatar.facing_left {
 	transform: scaleX(-1.2) scaleY(1.2)
 }
 
@@ -434,6 +441,7 @@ enemy-avatar.facing_left {
 /* pixel art mode: ON */
 player-avatar,
 enemy-avatar,
+boss-avatar,
 map-cell,
 .background,
 #overlay,
