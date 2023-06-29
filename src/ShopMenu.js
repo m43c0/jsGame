@@ -40,18 +40,30 @@ export default class ShopMenu extends HTMLElement {
     this.nextWeaponUI.classList.add("next_weapon");
     weaponUpgradeRow.appendChild(this.nextWeaponUI);
 
+    this.upgradeButton = document.createElement("div");
+    this.upgradeButton.classList.add("btn");
+    this.upgradeButton.innerHTML = "Upgrade";
+    this.upgradeButton.addEventListener("click", () => {
+      this.upgradeWeapon();
+    });
+    menuContent.appendChild(this.upgradeButton);
+
     // buttons row
     const buttonsRow = document.createElement("div");
     buttonsRow.classList.add("buttons_row");
     menuContent.appendChild(buttonsRow);
-    this.upgradeButton = document.createElement("div");
-    this.upgradeButton.innerHTML = "Upgrade";
-    buttonsRow.appendChild(this.upgradeButton);
-    this.upgradeButton.addEventListener("click", () => {
-      this.upgradeWeapon();
+    this.saveButton = document.createElement("div");
+    this.saveButton.innerHTML = "Save Game";
+    this.saveButton.classList.add("btn");
+    this.saveButton.classList.add("save_btn");
+    buttonsRow.appendChild(this.saveButton);
+    this.saveButton.addEventListener("click", () => {
+      this.saveButton.classList.add("locked");
+      GameManager.getInstance().saveGame(this.playerRef);
     });
     const closeButton = document.createElement("div");
     closeButton.innerHTML = "Leave";
+    closeButton.classList.add("btn");
     buttonsRow.appendChild(closeButton);
     closeButton.addEventListener("click", () => {
       this.closeMenu();
@@ -63,6 +75,7 @@ export default class ShopMenu extends HTMLElement {
   openMenu(player) {
     this.playerRef = player;
     this.updateMenu();
+    this.saveButton.classList.remove("locked");
     this.classList.add("open");
   }
 
@@ -71,7 +84,7 @@ export default class ShopMenu extends HTMLElement {
     this.menuTitle.innerHTML = "Weapon at maximum";
     this.currentWeaponUI.src = "/assets/ui/sword_" + currentWeaponLv + ".png";
 
-    this.upgradeButton.className = "";
+    this.upgradeButton.className = "btn";
     this.upgradeCostText.innerHTML = "0";
     this.nextWeaponUI.src = "";
     if (currentWeaponLv < this.maxWeaponLv) {
@@ -79,11 +92,13 @@ export default class ShopMenu extends HTMLElement {
       this.upgradeCostText.innerHTML = this.weaponPrices[currentWeaponLv];
       this.nextWeaponUI.src =
         "/assets/ui/sword_" + (currentWeaponLv + 1) + ".png";
+    } else {
+      this.upgradeButton.classList.add("locked");
       return;
     }
+
     if (
-      GameManager.getInstance().currentGold <
-      this.weaponPrices[currentWeaponLv + 1]
+      GameManager.getInstance().currentGold < this.weaponPrices[currentWeaponLv]
     )
       this.upgradeButton.classList.add("locked");
   }

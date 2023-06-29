@@ -233,7 +233,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 5vh;
+    gap: 4vh;
 }
 
 .weapon_upgrade_row {
@@ -271,15 +271,40 @@ body {
     align-items: center;
     justify-content: center;
     gap: 4vw;
+    margin-top: 2vh;
 }
 
-.buttons_row>div {
+.shop_menu_content .btn {
     cursor: pointer;
-    border: 2px solid #fff;
-    padding: 2vw;
+    padding: 1vw;
+    text-decoration: underline;
+    text-underline-offset: 1vh;
 }
 
-.buttons_row>div.locked {
-    opacity: .4;
+.shop_menu_content .btn.locked {
+    color: #ffffff66;
     pointer-events: none;
+}
+
+.shop_menu_content .save_btn {
+    position: relative;
+}
+
+
+
+.shop_menu_content .save_btn:before {
+    content: "Game saved!";
+    opacity: 0;
+    transition: opacity .7s ease;
+    position: absolute;
+    top: -1vh;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: pre;
+    font-size: 1.4vw;
+    color: chartreuse;
+}
+
+.shop_menu_content .save_btn.locked:before {
+    opacity: 1;
 }

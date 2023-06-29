@@ -79,6 +79,9 @@ export default class GameManager {
       this.shopMenu = new ShopMenu();
       this.ui.appendChild(this.shopMenu);
 
+      if (localStorage.getItem("savegame") == null)
+        document.querySelector("#overlay .load_button").classList.add("locked");
+
       // start main update cycle
       this.#mainUpdate();
 
@@ -91,6 +94,12 @@ export default class GameManager {
           .addEventListener("click", () => {
             this.#startGame();
           });
+
+        document
+          .querySelector("#overlay .load_button")
+          .addEventListener("click", () => {
+            this.#loadGame();
+          });
       }
     } else return GameManager.#instance;
   }
@@ -100,13 +109,39 @@ export default class GameManager {
     return new GameManager();
   }
 
-  #startGame() {
-    this.mapLevel = Constants.get("mapStartingLevel");
+  #loadGame() {
+    const save = localStorage.getItem("savegame");
+    if (save == null) {
+      this.#startGame();
+      return;
+    }
 
-    this.currentGold = Constants.get("playerStartingGold");
+    const saveObject = JSON.parse(save);
+    this.#startGame(
+      saveObject.mapLv,
+      saveObject.playerLevel,
+      saveObject.gold,
+      saveObject.playerCurrentExp,
+      saveObject.weaponLv
+    );
+  }
+
+  #startGame(_mapLv, _pLv, _pGold, _pExp, _wLv) {
+    this.mapLevel =
+      _mapLv === undefined ? Constants.get("mapStartingLevel") : _mapLv;
+
+    this.currentGold =
+      _mapLv === undefined ? Constants.get("playerStartingGold") : _pGold;
     this.addGold(0); // set html of gold ui element to "0"
 
-    this.#buildMap(1, 0, Constants.get("startingPlayerLevel"), undefined, 0, 1);
+    const playerLevel =
+      _pLv === undefined ? Constants.get("startingPlayerLevel") : _pLv;
+
+    const playerExp = _pExp === undefined ? 0 : _pExp;
+
+    const weaponLevel = _wLv === undefined ? 1 : _wLv;
+
+    this.#buildMap(1, 0, playerLevel, undefined, playerExp, weaponLevel);
     this.gameState = GameManager.GameState.PLAY;
 
     if (GameManager.#isDebug) {
@@ -224,7 +259,13 @@ export default class GameManager {
 
     const overlay = document.querySelector("#overlay");
     overlay.querySelector(".overlay_text").innerHTML = "Game Over";
-    overlay.querySelector(".play_button").innerHTML = "Retry";
+    overlay.querySelector(".play_button").innerHTML = "Restart";
+
+    if (localStorage.getItem("savegame") != null)
+      document
+        .querySelector("#overlay .load_button")
+        .classList.remove("locked");
+
     this.#playMusic("game-over");
     overlay.classList.remove("isPlaying");
     overlay.classList.add("gOver");
@@ -283,6 +324,17 @@ export default class GameManager {
     this.currentWeaponUI.className = "";
     this.currentWeaponUI.classList.add("lv" + weaponLv);
     this.rootElement.classList.add("wLv" + weaponLv);
+  }
+
+  saveGame(player) {
+    const save = {
+      mapLv: this.mapLevel,
+      playerLevel: player.level,
+      playerCurrentExp: player.currentExp,
+      weaponLv: player.weaponLv,
+      gold: this.currentGold,
+    };
+    localStorage.setItem("savegame", JSON.stringify(save));
   }
 
   #playMusic(song) {
