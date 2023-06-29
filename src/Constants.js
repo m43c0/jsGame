@@ -17,7 +17,7 @@ export default class Constants {
     playerStartPositionY: 2,
 
     startingPlayerLevel: 1,
-    basePlayerHp: 50,
+    basePlayerHp: 60, // was 50
     basePlayerAtk: 10,
     basePlayerExpToNextLevel: 20,
     playerStartingGold: 10,
@@ -26,10 +26,10 @@ export default class Constants {
     weaponDamageBonus: [0, 25, 50, 100, 200],
     maxWeaponLevel: 5,
 
-    enemyHp: [20, 50, 150, 300],
+    enemyHp: [20, 40, 100, 200],
     enemyAtk: [10, 20, 50, 120],
     baseEnemyExpDrop: 5,
-    baseEnemyGoldDrop: 3,
+    baseEnemyGoldDrop: 7,
 
     mapStartingLevel: 1,
   };
