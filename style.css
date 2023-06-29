@@ -32,6 +32,8 @@ body {
 
 #overlay {
 	background-color: black;
+	background-position: center;
+	background-size: cover;
 	color: white;
 	position: fixed;
 	top: 0px;
@@ -48,16 +50,35 @@ body {
 	transition: opacity 1s ease;
 }
 
+#overlay:not(.isPlaying) {
+	background-image: url(/assets/ui/bg_start.jpg);
+}
+
 #overlay.isPlaying {
 	opacity: 0;
 	pointer-events: none;
 }
 
+#overlay.gOver {
+	background-image: url(/assets/ui/bg_game-over.jpg);
+}
+
+#overlay.finish {
+	background-image: url(/assets/ui/bg_finish.jpg);
+}
 
 #overlay .play_button {
 	font-size: 32px;
 	cursor: pointer;
 	text-decoration: underline;
+	text-underline-offset: 7px;
+}
+
+#overlay>* {
+	padding: 2vw;
+	user-select: none;
+	background-color: #000000AD;
+	text-shadow: 4px 4px 0px black;
 }
 
 #overlay .overlay_text {
@@ -93,7 +114,7 @@ world-container {
 	background-repeat: repeat-x;
 	background-size: contain;
 	background-position-y: bottom;
-	transition: background-position-x .4s ease;
+	transition: background-position-x .4s linear;
 }
 
 #bg0 {
@@ -405,6 +426,7 @@ player-avatar,
 enemy-avatar,
 map-cell,
 .background,
+#overlay,
 #map_border_bottom,
 #UI {
 	image-rendering: pixelated;

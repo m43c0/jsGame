@@ -113,7 +113,7 @@ export default class GameManager {
       document.querySelector("#overlay").remove();
       return;
     }
-    document.querySelector("#overlay").classList.add("isPlaying");
+    document.querySelector("#overlay").className = "isPlaying";
 
     this.#playMusic("main");
 
@@ -227,18 +227,20 @@ export default class GameManager {
     overlay.querySelector(".play_button").innerHTML = "Retry";
     this.#playMusic("game-over");
     overlay.classList.remove("isPlaying");
+    overlay.classList.add("gOver");
   }
 
   finish() {
     this.gameState = GameManager.GameState.STOP;
     const overlay = document.querySelector("#overlay");
-    overlay.querySelector(".overlay_text").innerHTML = "You beat the game";
+    overlay.querySelector(".overlay_text").innerHTML = "You beat the game!!";
     const thanks = document.createElement("div");
-    thanks.innerHTML = "thank you for playing";
+    thanks.innerHTML = "Thank You for playing";
     document.querySelector("#overlay").appendChild(thanks);
     overlay.querySelector(".play_button").remove();
     this.#playMusic("end");
     overlay.classList.remove("isPlaying");
+    overlay.classList.add("finish");
   }
 
   playerEnterInCity(player) {
