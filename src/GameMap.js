@@ -29,6 +29,7 @@ export default class GameMap extends HTMLElement {
     this.mapLevel = currentMapLevel;
 
     this.timeOfDay = currentTimeOfDay;
+    if (currentTimeOfDay == 0) this.#setDayNightCssColors("#aee7f8", 0);
 
     // MAP elements
 
@@ -233,15 +234,16 @@ export default class GameMap extends HTMLElement {
       let amount = this.timeOfDay - 100;
       amount = amount <= 50 ? amount / 50 : amount * -0.02 + 2;
       const dayNightColor = GameMap.#lerpColor("#aee7f8", "#34376f", amount);
-      document.documentElement.style.setProperty(
-        "--daynight-color",
-        dayNightColor
-      );
-      document.documentElement.style.setProperty(
-        "--night-intensity",
-        Math.min(amount, 0.5)
-      );
+      this.#setDayNightCssColors(dayNightColor, Math.min(amount, 0.5));
     }
+  }
+
+  #setDayNightCssColors(color, nightIntensity) {
+    document.documentElement.style.setProperty("--daynight-color", color);
+    document.documentElement.style.setProperty(
+      "--night-intensity",
+      nightIntensity
+    );
   }
 
   // set the position (left and top pixels) and the coordinates of the given gameEntity
