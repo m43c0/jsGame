@@ -119,7 +119,13 @@ export default class GameManager {
     }
 
     const saveObject = JSON.parse(save);
-    this.#startGame(8, 10, 1000, 0, 3);
+    this.#startGame(
+      saveObject.mapLv,
+      saveObject.playerLevel,
+      saveObject.gold,
+      saveObject.playerCurrentExp,
+      saveObject.weaponLv
+    );
   }
 
   #startGame(_mapLv, _pLv, _pGold, _pExp, _wLv) {
