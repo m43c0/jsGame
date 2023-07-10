@@ -228,6 +228,7 @@ export default class GameMap extends HTMLElement {
     this.timeOfDay += 0.05;
     if (this.timeOfDay >= 200) this.timeOfDay = 0;
     // colori. da 0 a 100 giorno pieno. da 100 a 150 passa da giorno a notte e da 150 a 200 passa da notte a giorno
+    console.log(this.timeOfDay);
     if (this.timeOfDay >= 100) {
       let amount = this.timeOfDay - 100;
       amount = amount <= 50 ? amount / 50 : amount * -0.02 + 2;
@@ -312,7 +313,7 @@ export default class GameMap extends HTMLElement {
     if (nextMap != 0) {
       GameManager.getInstance().changeMap(
         nextMap,
-        this.currentTimeOfDay,
+        this.timeOfDay,
         this.#playerReference.level,
         this.#playerReference.hp,
         this.#playerReference.currentExp,
