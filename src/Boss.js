@@ -8,9 +8,9 @@ export default class Boss extends Enemy {
     this.level = 99;
     this.className = "";
 
-    this.setMaxHp(8000);
-    this.hp = 8000;
-    this.atk = 120;
+    this.setMaxHp(6200);
+    this.hp = 6200;
+    this.atk = 90;
     this.weaponLv = 1;
 
     this.classList.add("facing_left");

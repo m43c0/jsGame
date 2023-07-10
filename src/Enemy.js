@@ -24,7 +24,7 @@ export default class Enemy extends GameEntity {
 
   signalDeath(killer) {
     killer.addExp(
-      Constants.get("baseEnemyExpDrop") * Math.floor(Math.pow(this.level, 2.5))
+      Constants.get("baseEnemyExpDrop") * Math.floor(Math.pow(this.level, 2.4))
     );
     const minGoldDropped = Constants.get("baseEnemyGoldDrop") * this.level;
     const maxGoldDropped = minGoldDropped * 2;
