@@ -1,6 +1,5 @@
-import Constants from "./Constants";
 import Enemy from "./Enemy";
-import GameEntity from "./GameEntity";
+import GameManager from "./GameManager";
 export default class Boss extends Enemy {
   constructor() {
     super();
@@ -9,14 +8,17 @@ export default class Boss extends Enemy {
     this.level = 99;
     this.className = "";
 
-    this.setMaxHp(9999);
-    this.hp = 9999;
-    this.atk = 66;
+    this.setMaxHp(8000);
+    this.hp = 8000;
+    this.atk = 120;
     this.weaponLv = 1;
 
     this.classList.add("facing_left");
   }
   signalDeath() {
-    GameManager.getInstance().finish();
+    GameManager.getInstance().stopMainUpdate();
+    setTimeout(() => {
+      GameManager.getInstance().finish();
+    }, 2000);
   }
 }

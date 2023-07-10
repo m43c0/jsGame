@@ -273,14 +273,22 @@ export default class GameManager {
     overlay.classList.add("gOver");
   }
 
+  stopMainUpdate() {
+    this.gameState = GameManager.GameState.STOP;
+  }
+  resumeMainUpdate() {
+    this.gameState = GameManager.GameState.PLAY;
+  }
+
   finish() {
     this.gameState = GameManager.GameState.STOP;
     const overlay = document.querySelector("#overlay");
-    overlay.querySelector(".overlay_text").innerHTML = "You beat the game!!";
+    overlay.querySelector(".overlay_text").innerHTML = "You beat the game!";
     const thanks = document.createElement("div");
     thanks.innerHTML = "Thank You for playing";
     document.querySelector("#overlay").appendChild(thanks);
     overlay.querySelector(".play_button").remove();
+    overlay.querySelector(".load_button").remove();
     this.#playMusic("end");
     overlay.classList.remove("isPlaying");
     overlay.classList.add("finish");
@@ -342,7 +350,7 @@ export default class GameManager {
   #playMusic(song) {
     if (this.backGroundMusic) this.backGroundMusic.pause();
     this.backGroundMusic = new Audio("/assets/music/" + song + ".ogg");
-    this.backGroundMusic.volume = 0.05;
+    this.backGroundMusic.volume = 0.03;
     this.backGroundMusic.loop = true;
     this.backGroundMusic.play();
   }

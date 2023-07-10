@@ -32,7 +32,7 @@ export default class GameEntity extends HTMLElement {
 
   getHit(attackingEntity) {
     const weaponDamageBonus =
-      Constants.get("weaponDamageBonus")[this.weaponLv - 1];
+      Constants.get("weaponDamageBonus")[attackingEntity.weaponLv - 1];
     const attackPower = attackingEntity.atk + weaponDamageBonus;
     this.hp = Math.max(0, this.hp - attackPower);
 

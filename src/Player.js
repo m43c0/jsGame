@@ -13,6 +13,7 @@ export default class Player extends GameEntity {
     super();
 
     this.level = currentLevel;
+    this.maxLevel = parseInt(Constants.get("maxPlayerLevel"));
     this.#setupPlayerStats();
 
     // set stat che mi porto dietro da mappa precedente
@@ -39,11 +40,14 @@ export default class Player extends GameEntity {
   }
 
   addExp(exp) {
+    if (this.level >= this.maxLevel) return;
+
     const totalExp = this.currentExp + exp;
     if (totalExp >= this.expToNextLevel) {
       const expLeftAfterLvUp = totalExp - this.expToNextLevel;
       this.levelUp();
       this.currentExp = expLeftAfterLvUp;
+      if (this.level >= this.maxLevel) this.currentExp = 0;
     } else this.currentExp = totalExp;
 
     this.#debugPrintStats();
@@ -62,7 +66,7 @@ export default class Player extends GameEntity {
     const maxHealth =
       Constants.get("basePlayerHp") +
       (Constants.get("basePlayerHp") / 10) *
-        Math.floor(Math.pow(this.level, 2.5));
+        Math.floor(Math.pow(this.level, 2.3));
 
     this.setMaxHp(maxHealth);
     this.hp = maxHealth;

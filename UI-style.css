@@ -295,7 +295,7 @@ body {
 .shop_menu_content .save_btn:before {
     content: "Game saved!";
     opacity: 0;
-    transition: opacity .7s ease;
+    transition: opacity .0s;
     position: absolute;
     top: -1vh;
     left: 50%;
@@ -306,5 +306,6 @@ body {
 }
 
 .shop_menu_content .save_btn.locked:before {
+    transition: opacity .7s ease;
     opacity: 1;
 }

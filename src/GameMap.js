@@ -119,7 +119,7 @@ export default class GameMap extends HTMLElement {
 
     // enemies
     const mapLv = this.mapLevel;
-    const isCity = mapLv === 3 || mapLv === 7 || mapLv === 12 || mapLv === 16;
+    const isCity = mapLv % 3 == 0;
 
     if (isCity) {
       const cityX = Math.floor(this.cols / 2);
@@ -128,7 +128,7 @@ export default class GameMap extends HTMLElement {
       cellToPlaceCity.setupCity();
       return;
     }
-    if (mapLv === 17) {
+    if (mapLv === 19) {
       const bossX = Math.floor(this.cols / 2);
       const bossY = Math.floor(this.rows / 2);
       const cellToPlaceBoss = this.#getCellFromCoords(bossX, bossY);
@@ -142,7 +142,7 @@ export default class GameMap extends HTMLElement {
     const totalEnemiesOnMap = Math.floor((mapLv + 2) / 2);
 
     const enemiesMinLevel = Math.floor(mapLv / 5 + 1);
-    const enemiesMaxLevel = Math.floor(mapLv / 4 + 1);
+    const enemiesMaxLevel = Math.min(Math.floor(mapLv / 4 + 1), 4);
 
     let enemiesToPlace = totalEnemiesOnMap;
 
