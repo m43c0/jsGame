@@ -5,6 +5,9 @@ import Player from "./Player";
 import Enemy from "./Enemy";
 import Boss from "./Boss";
 
+// class with the core mechanics of the game
+// it manages the map grid, the map backgrounds (mountains, sky, etc)
+// the movements of entities, daynight cycle, ecc and ...
 export default class GameMap extends HTMLElement {
   #cells = [];
   #playerReference;
@@ -31,8 +34,8 @@ export default class GameMap extends HTMLElement {
     this.timeOfDay = currentTimeOfDay;
     if (currentTimeOfDay == 0) this.#setDayNightCssColors("#aee7f8", 0);
 
-    // MAP elements
-
+    // MAP ELEMENTS
+    // sky and backgrounds
     this.sky = document.createElement("div");
     this.sky.id = "sky";
 
@@ -58,9 +61,11 @@ export default class GameMap extends HTMLElement {
     this.sky.appendChild(bg2);
     this.sky.appendChild(bg3);
 
+    // bottom border: sea
     const border_bottom = document.createElement("div");
     border_bottom.id = "map_border_bottom";
 
+    // main map container
     this.map_container = document.createElement("div");
     this.map_container.id = "map_container";
     document.documentElement.style.setProperty("--map-columns", this.cols);
@@ -73,28 +78,34 @@ export default class GameMap extends HTMLElement {
     dayNightOverlay.id = "daynight_overlay";
     this.appendChild(dayNightOverlay);
 
+    // create all map cells
     for (let y = 0; y < this.rows; y++)
       for (let x = 0; x < this.cols; x++) {
         const randomType = Math.random();
+        // most cells will be grass, some trees and very few rocks
         let cellType = MapCell.CellType.GRASS;
         if (randomType > 0.9) cellType = MapCell.CellType.TREE;
         if (randomType > 0.99) cellType = MapCell.CellType.ROCK;
 
         const c = new MapCell(x, y, cellType);
 
+        // if player clicks on cell, it will be set as his current target
         c.addEventListener("click", () => {
           this.#setPlayerCurrentTarget(c);
         });
         this.map_container.appendChild(c);
+
+        // save all cells in an array to be able to retrieve them later
         this.#cells.push(c);
       }
 
+    // at setup and on window resize -> set object sizes and positions via css
     window.addEventListener("resize", (event) => {
       this.setupSizes(true);
     });
     this.setupSizes(false);
 
-    // create player
+    // create player and keep a private reference to it
     this.#playerReference = new Player(
       playerLevel,
       playerHp,
@@ -169,6 +180,7 @@ export default class GameMap extends HTMLElement {
     }
   }
 
+  //
   setupSizes(repositionEntitiesOnMap) {
     // to avoid gaps betweens elements caused by float errors,
     // cell size must be an integer, and world container must be an integer multiple of cell size
@@ -196,17 +208,23 @@ export default class GameMap extends HTMLElement {
     }
   }
 
+  // main map update:
   update() {
     this.#dayNightCycle();
   }
 
+  // map turn update: manage player and enemy turn actions
+
+  // TODO: comment. ad ogni turno giocatore e nemici si spostano di una casella
   turnUpdate() {
     if (this.#playerReference.hasTarget() && !this.#playerReference.isAttacking)
       this.#movePlayerAvatar();
 
+    // update every enemy on map
     this.enemies.forEach((e) => this.#enemyUpdate(e));
   }
 
+  //
   #enemyUpdate(enemy) {
     if (enemy.hp <= 0) return;
     if (GameMap.#areCellContiguous(enemy.cell, this.#playerReference.cell))
@@ -380,7 +398,7 @@ export default class GameMap extends HTMLElement {
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack1.png)";
 
-    await this.aspetta(attackWaitTime);
+    await GameManager.awaitMills(attackWaitTime);
     // controllo se attaccante ancora vivo dopo attesa: se morto -> termino attacco
     if (attackingEntity.hp <= 0) {
       this.#endAttack(attackingEntity);
@@ -390,7 +408,7 @@ export default class GameMap extends HTMLElement {
     target.getHit(attackingEntity);
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack2.png)";
-    await this.aspetta(attackWaitTime);
+    await GameManager.awaitMills(attackWaitTime);
     // controllo se attaccante ancora vivo dopo attesa: se morto -> termino attacco
     if (attackingEntity.hp <= 0) {
       this.#endAttack(attackingEntity);
@@ -399,7 +417,7 @@ export default class GameMap extends HTMLElement {
 
     attackingEntity.style.backgroundImage =
       "url(assets/characters/" + entityFolderName + "/attack3.png)";
-    await this.aspetta(attackWaitTime);
+    await GameManager.awaitMills(attackWaitTime);
 
     this.#endAttack(attackingEntity);
   }
@@ -466,9 +484,5 @@ export default class GameMap extends HTMLElement {
       "#" +
       (((1 << 24) + (rr << 16) + (rg << 8) + rb) | 0).toString(16).slice(1)
     );
-  }
-
-  aspetta(ms) {
-    return new Promise((res) => setTimeout(res, ms));
   }
 }

@@ -1,3 +1,6 @@
 import GameManager from "./GameManager";
 
-const gm = new GameManager();
+// application entry point:
+// creates a GameManager object that will manage
+// all aspects of the game
+new GameManager();

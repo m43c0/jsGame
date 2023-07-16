@@ -1,5 +1,7 @@
 import Enemy from "./Enemy";
 import GameManager from "./GameManager";
+
+// class that extends Enemy to define specific attributes and behaviors of the endgame Boss
 export default class Boss extends Enemy {
   constructor() {
     super();
@@ -15,6 +17,8 @@ export default class Boss extends Enemy {
 
     this.classList.add("facing_left");
   }
+
+  // boss -> if defeated: end game
   signalDeath() {
     GameManager.getInstance().stopMainUpdate();
     setTimeout(() => {

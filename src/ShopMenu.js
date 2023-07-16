@@ -1,15 +1,23 @@
 import Constants from "./Constants";
 import GameManager from "./GameManager";
 
+// class to manage the shopping menu that is showed when player enter a city.
+// in this menu it is possible to upgrade the player's weapon and save the game
 export default class ShopMenu extends HTMLElement {
   constructor() {
     super();
+
+    // create and initialize the shop menu and all its elements
+    // initially the menu will be hidden; when the player reaches a city, the GameManager
+    // will call the openMenu method that will update menu data and display it on screen;
+    // a reference to the player object is passed to the open method to access
+    // some of its stats (eg: current player weapon level)
 
     this.maxWeaponLv = Constants.get("maxWeaponLevel");
     this.weaponPrices = Constants.get("weaponCost");
     this.playerRef = null;
 
-    // create ui
+    // create menu ui
     this.classList.add("shop_menu");
 
     const menuContent = document.createElement("div");
@@ -69,9 +77,13 @@ export default class ShopMenu extends HTMLElement {
       this.closeMenu();
     });
 
+    // add all menu content to the ShopMenu HTMLElement
     this.appendChild(menuContent);
   }
 
+  // method to display the menu
+  // a reference to the player object is passed to the open method to access
+  // some of its stats (eg: current player weapon level)
   openMenu(player) {
     this.playerRef = player;
     this.updateMenu();
@@ -79,6 +91,7 @@ export default class ShopMenu extends HTMLElement {
     this.classList.add("open");
   }
 
+  // update all menu stats (text) and buttons
   updateMenu() {
     const currentWeaponLv = this.playerRef.weaponLv;
     this.menuTitle.innerHTML = "Weapon at maximum";
@@ -103,6 +116,7 @@ export default class ShopMenu extends HTMLElement {
       this.upgradeButton.classList.add("locked");
   }
 
+  // close menu and signals the GameManager that the player can be controlled again (the player has exited the city)
   closeMenu() {
     this.playerRef = null;
     this.classList.remove("open");
@@ -110,6 +124,9 @@ export default class ShopMenu extends HTMLElement {
     GameManager.getInstance().playerExitFromCity();
   }
 
+  // upgrade player weapon
+  // if player has enough gold and doesn't already have the best weapon, remove gold and
+  // update player weapon through its reference, then signals the GameManager to update the UI
   upgradeWeapon() {
     const currentWeaponLv = this.playerRef.weaponLv;
     if (

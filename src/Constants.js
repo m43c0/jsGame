@@ -1,3 +1,4 @@
+// static class used to manage game stats
 export default class Constants {
   constructor() {
     if (this instanceof Constants) {
@@ -35,6 +36,7 @@ export default class Constants {
     mapStartingLevel: 1,
   };
 
+  // method for retrieving the required constant
   static get(constantName) {
     if (constantName in Constants.#constantsDB)
       return Constants.#constantsDB[constantName];

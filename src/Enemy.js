@@ -1,10 +1,15 @@
 import Constants from "./Constants";
 import GameEntity from "./GameEntity";
 import GameManager from "./GameManager";
+
+// class used by GameMap to manage enemies
 export default class Enemy extends GameEntity {
   constructor(lv) {
     super();
-    // enemy stats
+
+    // enemy stats and appearance are based on its level;
+    // the higher the level, the stronger the enemy;
+    // currently there are 4 types of enemyes.
     this.level = lv;
     this.classList.add("lv" + lv);
 
@@ -15,6 +20,8 @@ export default class Enemy extends GameEntity {
     this.weaponLv = 1;
     this.atk = Constants.get("enemyAtk")[lv - 1];
 
+    // set css variable used as transition time for left and top properties
+    // the entity will take the duration of one turn to move on the map from one cell to another
     const turnTime = Constants.get("turnTime");
     this.style.setProperty("--enemy-move-speed", turnTime + "ms");
 
@@ -22,6 +29,7 @@ export default class Enemy extends GameEntity {
     if (Math.random() > 0.4) this.classList.add("facing_left");
   }
 
+  // when an enemy is defeated, its killer (the player) will be rewarded with exp and gold
   signalDeath(killer) {
     killer.addExp(
       Constants.get("baseEnemyExpDrop") * Math.floor(Math.pow(this.level, 2.4))

@@ -7,14 +7,25 @@ import Enemy from "./Enemy";
 import ShopMenu from "./ShopMenu";
 import Boss from "./Boss";
 
+// class used for managing the main aspects of the game, as:
+//
+// • game state
+// • map management (creation and map change)
+// • UI and menus
+// • player stats that are not managed by Player class (for now it's only the gold stat)
+// • save / load game
+// • music
+
+// the class is exposed as a singleton and accessible as the static method getInstance()
+// no more than one instance of it can exist in the program
 export default class GameManager {
   static #instance;
   static #isDebug = false;
   static #debugLog = false;
 
   // PLAY: normal play with turns timing
-  // PAUSE: menu, shopts, etc.. main update runs but no turns
-  // STOP: pause or game over. no main update or turns
+  // PAUSE: menu, shops, etc.. main update runs but no turns
+  // STOP: pause or game over. no main update nor turns
   static GameState = { PLAY: "PLAY", PAUSE: "PAUSE", STOP: "STOP" };
 
   constructor() {
@@ -26,7 +37,7 @@ export default class GameManager {
       this.map = null;
       this.gameState = GameManager.GameState.STOP;
 
-      // define custom HTML element
+      // define custom HTML element used in the game
       window.customElements.define("world-container", GameMap);
       window.customElements.define("enemy-avatar", Enemy);
       window.customElements.define("boss-avatar", Boss);
@@ -87,6 +98,7 @@ export default class GameManager {
       // start main update cycle
       this.#mainUpdate();
 
+      // if debug mode -> skip menu screen and start game
       if (GameManager.#isDebug) {
         document.getElementById("root").classList.add("debug");
         this.#startGame();
@@ -106,11 +118,14 @@ export default class GameManager {
     } else return GameManager.#instance;
   }
 
+  // static method used in other parts of the program to get the instance of GameManager
   static getInstance() {
-    // return new GameManager -> ci pensa il costruttore a gestire l'istanza con il singleton
+    // return new GameManager -> it's up to the constructor to manage the instance with the singleton
     return new GameManager();
   }
 
+  // loads the savegame JSON object from localStorage, containing player and game settngs/stats
+  // if a savegame is available, starts the game
   #loadGame() {
     const save = localStorage.getItem("savegame");
     if (save == null) {
@@ -127,6 +142,10 @@ export default class GameManager {
       saveObject.weaponLv
     );
   }
+
+  // private method called to start the play
+
+  // TODO: add comments for parameters
 
   #startGame(_mapLv, _pLv, _pGold, _pExp, _wLv) {
     this.mapLevel =
@@ -163,6 +182,7 @@ export default class GameManager {
     });
   }
 
+  // private method called to remove current map and create a new one
   #buildMap(
     change,
     currentTimeOfDay,
@@ -191,6 +211,8 @@ export default class GameManager {
     this.updateUI(playerLevel, playerExp);
   }
 
+  // main update of the game
+  //TODO: comment requestAnimationFrame
   #mainUpdate() {
     if (this.gameState != GameManager.GameState.STOP) {
       this.deltaTime = performance.now() - this.startFrameTimer;
@@ -206,16 +228,14 @@ export default class GameManager {
     window.requestAnimationFrame(() => this.#mainUpdate());
   }
 
+  // less frequent update used for game turns
   #turnUpdate() {
     GameManager.console_log("TURN");
     this.turnTime = Constants.get("turnTime");
     this.map.turnUpdate();
   }
 
-  static console_log(message) {
-    if (GameManager.#debugLog) console.log(message);
-  }
-
+  //TODO:
   async changeMap(
     change,
     currentTimeOfDay,
@@ -229,7 +249,7 @@ export default class GameManager {
     // animate out
     if (change > 0) this.changeMapCurtain.classList.add("close_to_left");
     else this.changeMapCurtain.classList.add("close_to_right");
-    await this.aspetta(1000);
+    await GameManager.awaitMills(1000);
 
     // create new map
     this.mapLevel += change;
@@ -245,11 +265,12 @@ export default class GameManager {
     // animate in
     if (change > 0) this.changeMapCurtain.classList.add("open_to_left");
     else this.changeMapCurtain.classList.add("open_to_right");
-    await this.aspetta(1000);
+    await GameManager.awaitMills(1000);
     this.changeMapCurtain.className = "";
     this.gameState = GameManager.GameState.PLAY;
   }
 
+  // stop game and show game over menu
   gameOver() {
     this.gameState = GameManager.GameState.STOP;
     if (GameManager.#isDebug) {
@@ -280,6 +301,7 @@ export default class GameManager {
     this.gameState = GameManager.GameState.PLAY;
   }
 
+  // stop game and show endgame
   finish() {
     this.gameState = GameManager.GameState.STOP;
     const overlay = document.querySelector("#overlay");
@@ -294,15 +316,18 @@ export default class GameManager {
     overlay.classList.add("finish");
   }
 
+  // pause game and open city shop menu
   playerEnterInCity(player) {
     this.gameState = GameManager.GameState.PAUSE;
     this.shopMenu.openMenu(player);
   }
 
+  // resume game after player closed shop menu
   playerExitFromCity() {
     this.gameState = GameManager.GameState.PLAY;
   }
 
+  // update UI content
   async updateUI(playerLevel, playerExp) {
     this.currentMapUI.innerHTML = "Map:" + this.mapLevel;
     this.playerLevelUI.innerHTML = "Lv" + playerLevel;
@@ -319,23 +344,30 @@ export default class GameManager {
     } else this.playerExpUI.style.width = expBarFill + "%";
   }
 
+  // adds (or removes) gold and update golg text in UI
   addGold(coins) {
     this.currentGold += coins;
     this.currentGoldUI.innerHTML = this.currentGold;
   }
 
+  // level up text animation
   async showLvUpBanner() {
     document.getElementById("UI_level_up").classList.add("active");
-    await this.aspetta(1000);
+    await GameManager.awaitMills(1000);
     document.getElementById("UI_level_up").classList.remove("active");
   }
 
+  // set UI weapon sprite (top menu and cursor)
   updatePlayerWeaponUI(weaponLv) {
+    // css class applied to the top menu
     this.currentWeaponUI.className = "";
     this.currentWeaponUI.classList.add("lv" + weaponLv);
+
+    // css class applied to the body for weapon cursor
     this.rootElement.classList.add("wLv" + weaponLv);
   }
 
+  // save player stats and map level in local storage as JSON object
   saveGame(player) {
     const save = {
       mapLv: this.mapLevel,
@@ -347,6 +379,12 @@ export default class GameManager {
     localStorage.setItem("savegame", JSON.stringify(save));
   }
 
+  // utility method for logging
+  static console_log(message) {
+    if (GameManager.#debugLog) console.log(message);
+  }
+
+  // loads and plays background audio
   #playMusic(song) {
     if (this.backGroundMusic) this.backGroundMusic.pause();
     this.backGroundMusic = new Audio("/assets/music/" + song + ".ogg");
@@ -355,7 +393,9 @@ export default class GameManager {
     this.backGroundMusic.play();
   }
 
-  aspetta(ms) {
+  // utility method that returns a promised that resolves in ginven ms'
+  // used in combination with await keywoard to wait for ginen milliseconds
+  static awaitMills(ms) {
     return new Promise((res) => setTimeout(res, ms));
   }
 }
