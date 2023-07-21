@@ -127,6 +127,33 @@ world-container {
 	transition: background-position-x .4s linear;
 }
 
+#arrow {
+	position: absolute;
+	right: 30%;
+	top: 10%;
+	width: 12vw;
+	aspect-ratio: 2 / 1;
+	background-size: cover !important;
+	background: url(/assets/ui/arrow.png);
+	animation-name: arrowAnim;
+	animation-duration: .7s;
+	animation-iteration-count: infinite;
+}
+
+@keyframes arrowAnim {
+	0% {
+		opacity: 0;
+	}
+
+	50% {
+		opacity: 1;
+	}
+}
+
+#arrow.hide {
+	visibility: hidden;
+}
+
 #bg0 {
 	background: linear-gradient(0deg, #ffffff 0%, var(--daynight-color) 100%);
 }
@@ -443,6 +470,7 @@ player-avatar,
 enemy-avatar,
 boss-avatar,
 map-cell,
+#arrow,
 .background,
 #overlay,
 #map_border_bottom,

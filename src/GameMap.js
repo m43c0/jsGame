@@ -39,6 +39,12 @@ export default class GameMap extends HTMLElement {
     this.sky = document.createElement("div");
     this.sky.id = "sky";
 
+    const arrow = document.createElement("div");
+    arrow.id = "arrow";
+    setTimeout(() => {
+      arrow.classList.add("hide");
+    }, 3500);
+
     const bg0 = document.createElement("div");
     bg0.id = "bg0";
     bg0.classList.add("background");
@@ -60,6 +66,7 @@ export default class GameMap extends HTMLElement {
     this.sky.appendChild(bg1);
     this.sky.appendChild(bg2);
     this.sky.appendChild(bg3);
+    this.sky.appendChild(arrow);
 
     // bottom border: sea
     const border_bottom = document.createElement("div");
